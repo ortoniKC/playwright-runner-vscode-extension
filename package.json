@@ -2,12 +2,32 @@
     "name": "ortoni",
     "displayName": "Playwright Runner",
     "description": "Run playwright test in a click",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "publisher": "ortoni",
+    "author": {
+        "name": "Koushik Chatterjee"
+    },
+    "license": "SEE LICENSE IN LICENSE",
+    "bugs": {
+        "url": "https://github.com/ortoniKC/playwright-runner-vscode-extension/issues",
+        "email": "koushik350@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ortoniKC/playwright-runner-vscode-extension"
+    },
+    "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
+    "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.61.0"
     },
+    "galleryBanner": {
+        "color": "#C80000",
+        "theme": "dark"
+    },
     "categories": [
-        "Other"
+        "Other",
+        "Snippets"
     ],
     "keywords": [
         "playwright",
