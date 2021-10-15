@@ -1,9 +1,9 @@
 # Change Log
+All notable changes to this project will be documented in this file.
 
-All notable changes to the "ortoni" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
+## [1.0.0] 14-10-2021
 - Initial release
+
+## [1.0.1] 16-10-2021
+- Added Regex to identify the unique test
+- Added test file name to avoid duplicate tests name

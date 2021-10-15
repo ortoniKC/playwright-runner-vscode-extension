@@ -1,8 +1,8 @@
 {
     "name": "ortoni",
     "displayName": "Playwright Runner",
-    "description": "Run playwright test in a click",
-    "version": "1.0.0",
+    "description": "Run Playwright test in a click",
+    "version": "1.0.1",
     "publisher": "ortoni",
     "author": {
         "name": "Koushik Chatterjee"

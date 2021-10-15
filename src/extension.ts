@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 		let testName: string = match.testName;
 		let words = testName.trim().split(" ");
 		if (words.length > 1) {
-			testName = testName.replace(/\s+/g, "/\s+");
+			testName = testName.replace(/\s+/g, "\\s+");
 		}
 		const endMatch = "$";
 		// send filename and test name
