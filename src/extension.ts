@@ -1,21 +1,26 @@
 import * as vscode from 'vscode';
+var path = require("path");
 
 export function activate(context: vscode.ExtensionContext) {
 	const languages = ['typescript', 'javascript'];
 	const window = vscode.window;
-	// const workspace = vscode.workspace;
 	const isTest = /^((\s*)(it|test|)(\s*)\((\s*)('|"))/g;
+	// TODO:
 	// const isSuite = /^((\s*)(test.describe|describe)(\s*)\((\s*)('|"))/g;
 	const isTestNameHasSingleOrDoubleQuotes = /(("|')(.*?)("|'))/;
 	let disposable = vscode.commands.registerCommand('extension.playwrightTest', (match) => {
 		let terminal = window.terminals.length > 0 ? window.terminals[0] : window.createTerminal();
 		terminal.show();
-		// let testFile = match.testFile;
-		// if (testFile !== null) {
-		// 	terminal.sendText(`cd "${testFile}"`);
-		// }
-		const testName = match.testName;
-		terminal.sendText(`npx playwright test -g ${testName}`);
+		let testFile = match.testFile;
+		// solve space issue
+		let testName: string = match.testName;
+		let words = testName.trim().split(" ");
+		if (words.length > 1) {
+			testName = testName.replace(/\s+/g, "/\s+");
+		}
+		const endMatch = "$";
+		// send filename and test name
+		terminal.sendText(`npx playwright test ${testFile} -g "${testName + endMatch}"`);
 	});
 	languages.forEach(language => {
 		context.subscriptions.push(vscode.languages.registerCodeLensProvider(language, { provideCodeLenses: insertRunnerText }));
@@ -26,7 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 		let matches = [];
-		var doc = window.activeTextEditor.document;
+		const doc = window.activeTextEditor.document;
+		const fileName = window.activeTextEditor.document.fileName;
+		const currentlyOpenTabfileName = path.basename(fileName);
 		for (let index = 0; index < doc.lineCount; index++) {
 			const line = doc.lineAt(index).text;
 			if (isTest.test(line)) {
@@ -34,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 				let match = {
 					range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, 5)),
 					testName: testNameMatch ? testNameMatch[3] : "",
-					testFile: null,
+					testFile: currentlyOpenTabfileName,
 					isTestSet: '\$(testing-run-icon) Execute Playwright Test'
 				};
 				matches.push(match);
