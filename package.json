@@ -1,79 +1,95 @@
 {
-    "name": "ortoni",
-    "displayName": "Playwright Runner",
-    "description": "Run Playwright test in a click",
-    "version": "1.0.1",
-    "publisher": "ortoni",
-    "author": {
-        "name": "Koushik Chatterjee"
-    },
-    "license": "SEE LICENSE IN LICENSE",
-    "bugs": {
-        "url": "https://github.com/ortoniKC/playwright-runner-vscode-extension/issues",
-        "email": "koushik350@gmail.com"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ortoniKC/playwright-runner-vscode-extension"
-    },
-    "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
-    "icon": "images/logo.png",
-    "engines": {
-        "vscode": "^1.61.0"
-    },
-    "galleryBanner": {
-        "color": "#C80000",
-        "theme": "dark"
-    },
-    "categories": [
-        "Other",
-        "Snippets"
-    ],
-    "keywords": [
-        "playwright",
-        "playwright test runner",
-        "playwright helper",
-        "playwright letcode",
-        "koushik",
-        "letcode with koushik"
-    ],
-    "activationEvents": [
-        "onLanguage:typescript",
-        "onLanguage:javascript"
-    ],
-    "main": "./out/extension.js",
-    "contributes": {
-        "configuration": {
-            "type": "object",
-            "title": "ortoni-runner",
-            "properties": {
-                "ortoni-runner.playwrightConfiguration": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Relative path to playwright configuration"
-                }
+  "name": "ortoni",
+  "displayName": "Playwright Runner by Koushik",
+  "description": "Run Playwright test in a click",
+  "version": "2.0.0",
+  "publisher": "ortoni",
+  "author": {
+    "name": "Koushik Chatterjee"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/ortoniKC/playwright-runner-vscode-extension/issues",
+    "email": "koushik350@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ortoniKC/playwright-runner-vscode-extension"
+  },
+  "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
+  "icon": "images/logo.png",
+  "engines": {
+    "vscode": "^1.61.0"
+  },
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
+  "categories": [
+    "Other",
+    "Snippets"
+  ],
+  "keywords": [
+    "playwright",
+    "playwright test runner",
+    "playwright helper",
+    "playwright letcode",
+    "koushik",
+    "letcode with koushik"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Playwright Runner by Koushik",
+      "properties": {
+        "playwrightTestRunner.environments": {
+          "type": "object",
+          "description": "Environment variables for different environments",
+          "properties": {
+            "Develop": {
+              "type": "string",
+              "default": "TEST_ENV=devNational",
+              "description": "Environment variable for Development environment"
+            },
+            "Staging": {
+              "type": "string",
+              "default": "TEST_ENV=stagingNational",
+              "description": "Environment variable for Staging environment"
+            },
+            "Production": {
+              "type": "string",
+              "default": "TEST_ENV=prod",
+              "description": "Environment variable for Production environment"
             }
+          }
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
-        "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
-    },
-    "devDependencies": {
-        "@types/vscode": "^1.61.0",
-        "@types/glob": "^7.1.4",
-        "@types/mocha": "^9.0.0",
-        "@types/node": "14.x",
-        "@typescript-eslint/eslint-plugin": "^4.31.1",
-        "@typescript-eslint/parser": "^4.31.1",
-        "eslint": "^7.32.0",
-        "glob": "^7.1.7",
-        "mocha": "^9.1.1",
-        "typescript": "^4.4.3",
-        "@vscode/test-electron": "^1.6.2"
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.61.0",
+    "@types/glob": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "14.x",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
+    "eslint": "^7.32.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.1.1",
+    "typescript": "^4.4.3",
+    "@vscode/test-electron": "^1.6.2"
+  }
 }
