@@ -2,8 +2,8 @@
   "name": "ortoni",
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
-  "version": "2.0.0",
-  "publisher": "LetCode with Koushik",
+  "version": "2.0.1",
+  "publisher": "ortoni",
   "author": {
     "name": "Koushik Chatterjee"
   },
