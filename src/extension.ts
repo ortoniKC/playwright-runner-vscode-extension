@@ -1,10 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { EnvironmentTreeViewProvider } from './EnvironmentTreeViewProvider';
-let environmentProvider: EnvironmentTreeViewProvider;
 
 export function activate(context: vscode.ExtensionContext) {
-
 	// To open setting from the tree view
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extension.openSettings', () => {
@@ -24,7 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.workspace.onDidChangeConfiguration(event => {
 			if (event.affectsConfiguration('ortoniPlaywrightTestRunner.environments')) {
 				// Refresh environments and update tree view
-				console.log("changes done");
 				const updatedEnvironments = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<{ [key: string]: string }>("environments")!;
 				const updatedDefaultEnvironment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment")!;
 				environmentProvider.refresh(updatedEnvironments, updatedDefaultEnvironment);
@@ -52,13 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showWarningMessage("No environment selected, test not run.");
 				return;
 			}
-
 			const envCommand = environments[environment];
-			if (!envCommand) {
-				vscode.window.showErrorMessage(`Unknown environment selected: ${environment}`);
-				return;
-			}
-
 			// Create or show terminal
 			let terminal: vscode.Terminal;
 			try {

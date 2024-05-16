@@ -65,14 +65,28 @@
               "type": "string",
               "default": "TEST_ENV=prod",
               "description": "Environment variable for Production"
+            },
+            "No Environment": {
+              "type": "string",
+              "default": "",
+              "description": "Environment not required"
             }
           }
         },
         "ortoniPlaywrightTestRunner.defaultEnvironment": {
           "type": "string",
-          "default": "Develop",
-          "description": "Default environment to run tests"
+          "default": "No Environment",
+          "description": "Environment not set"
         }
+      },
+      "configurationDefaults": {
+        "ortoniPlaywrightTestRunner.environments": {
+          "Develop": "TEST_ENV=devNational",
+          "Staging": "TEST_ENV=stagingNational",
+          "Production": "TEST_ENV=prod",
+          "No Environment": ""
+        },
+        "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
       }
     },
     "commands": [
