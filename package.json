@@ -3,7 +3,7 @@
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
   "version": "2.0.0",
-  "publisher": "ortoni",
+  "publisher": "LetCode with Koushik",
   "author": {
     "name": "Koushik Chatterjee"
   },
@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.61.0"
+    "vscode": "^1.89.0"
   },
   "galleryBanner": {
     "color": "#C80000",
@@ -47,28 +47,74 @@
       "type": "object",
       "title": "Playwright Runner by Koushik",
       "properties": {
-        "playwrightTestRunner.environments": {
+        "ortoniPlaywrightTestRunner.environments": {
           "type": "object",
           "description": "Environment variables for different environments",
           "properties": {
             "Develop": {
               "type": "string",
               "default": "TEST_ENV=devNational",
-              "description": "Environment variable for Development environment"
+              "description": "Environment variable for Development"
             },
             "Staging": {
               "type": "string",
               "default": "TEST_ENV=stagingNational",
-              "description": "Environment variable for Staging environment"
+              "description": "Environment variable for Staging"
             },
             "Production": {
               "type": "string",
               "default": "TEST_ENV=prod",
-              "description": "Environment variable for Production environment"
+              "description": "Environment variable for Production"
+            },
+            "No Environment": {
+              "type": "string",
+              "default": "",
+              "description": "Environment not required"
             }
           }
+        },
+        "ortoniPlaywrightTestRunner.defaultEnvironment": {
+          "type": "string",
+          "default": "No Environment",
+          "description": "Environment not set"
         }
+      },
+      "configurationDefaults": {
+        "ortoniPlaywrightTestRunner.environments": {
+          "Develop": "TEST_ENV=devNational",
+          "Staging": "TEST_ENV=stagingNational",
+          "Production": "TEST_ENV=prod",
+          "No Environment": ""
+        },
+        "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
       }
+    },
+    "commands": [
+      {
+        "command": "extension.playwrightTest",
+        "title": "Run Playwright Test"
+      },
+      {
+        "command": "extension.setDefaultEnvironment",
+        "title": "Set Default Environment"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ortoniPlaywrightRunner",
+          "title": "Playwright runner by Koushik",
+          "icon": "images/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "ortoniPlaywrightRunner": [
+        {
+          "id": "playwrightEnvironmentSelector",
+          "name": "Environment Selector"
+        }
+      ]
     }
   },
   "scripts": {
@@ -80,16 +126,17 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.61.0",
     "@types/glob": "^7.1.4",
     "@types/mocha": "^9.0.0",
     "@types/node": "14.x",
+    "@types/vscode": "^1.61.0",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
+    "@vscode/test-electron": "^1.6.2",
+    "esbuild": "^0.21.2",
     "eslint": "^7.32.0",
     "glob": "^7.1.7",
     "mocha": "^9.1.1",
-    "typescript": "^4.4.3",
-    "@vscode/test-electron": "^1.6.2"
+    "typescript": "^4.4.3"
   }
 }
