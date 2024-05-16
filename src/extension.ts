@@ -3,7 +3,7 @@ import * as path from 'path';
 import { EnvironmentTreeViewProvider } from './EnvironmentTreeViewProvider';
 
 export function activate(context: vscode.ExtensionContext) {
-	const config = vscode.workspace.getConfiguration("playwrightTestRunner");
+	const config = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner");
 	const environments = config.get<{ [key: string]: string }>("environments")!;
 	let defaultEnvironment = config.get<string>("defaultEnvironment")!;
 
@@ -25,8 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand(
 		"extension.playwrightTest",
 		async (match) => {
+			const environment = defaultEnvironment;
 			// Fetch the default environment each time the command is executed
-			const environment = vscode.workspace.getConfiguration("playwrightTestRunner").get<string>("defaultEnvironment");
+			// const environment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment");
 
 			if (!environment) {
 				vscode.window.showWarningMessage("No environment selected, test not run.");

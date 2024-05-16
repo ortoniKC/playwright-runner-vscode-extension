@@ -3,7 +3,7 @@
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
   "version": "2.0.0",
-  "publisher": "ortoni",
+  "publisher": "LetCode with Koushik",
   "author": {
     "name": "Koushik Chatterjee"
   },
@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.61.0"
+    "vscode": "^1.89.0"
   },
   "galleryBanner": {
     "color": "#C80000",
@@ -47,7 +47,7 @@
       "type": "object",
       "title": "Playwright Runner by Koushik",
       "properties": {
-        "playwrightTestRunner.environments": {
+        "ortoniortoniPlaywrightTestRunner.environments": {
           "type": "object",
           "description": "Environment variables for different environments",
           "properties": {
@@ -65,12 +65,17 @@
               "type": "string",
               "default": "TEST_ENV=prod",
               "description": "Environment variable for Production environment"
+            },
+            "No Environment": {
+              "type": "string",
+              "default": "",
+              "description": "No Environment required"
             }
           }
         },
-        "playwrightTestRunner.defaultEnvironment": {
+        "ortoniortoniPlaywrightTestRunner.defaultEnvironment": {
           "type": "string",
-          "default": "Develop",
+          "default": "No Environment",
           "description": "Default environment to run tests"
         }
       }
@@ -88,14 +93,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "playwrightRunner",
-          "title": "Playwright",
+          "id": "ortoniortoniPlaywrightTestRunner",
+          "title": "Playwright Runner By Koushik",
           "icon": "images/logo.png"
         }
       ]
     },
     "views": {
-      "playwrightRunner": [
+      "ortoniortoniPlaywrightTestRunner": [
         {
           "id": "playwrightEnvironmentSelector",
           "name": "Environment Selector"

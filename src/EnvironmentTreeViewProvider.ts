@@ -23,15 +23,23 @@ export class EnvironmentTreeViewProvider implements vscode.TreeDataProvider<Envi
     }
 
     getChildren(element?: EnvironmentTreeItem): Thenable<EnvironmentTreeItem[]> {
-        return Promise.resolve(
-            Object.keys(this.environments).map(env =>
+        if (!element) {
+            // Root level items: environments and settings link
+            const items: EnvironmentTreeItem[] = Object.keys(this.environments).map(env =>
                 new EnvironmentTreeItem(env, this.defaultEnvironment, {
                     command: 'extension.setDefaultEnvironment',
                     title: 'Set Default Environment',
                     arguments: [env]
                 })
-            )
-        );
+            );
+            items.push(new EnvironmentTreeItem('Edit Settings...', this.defaultEnvironment, {
+                command: 'extension.openSettings',
+                title: 'Edit Settings',
+            }));
+            return Promise.resolve(items);
+        } else {
+            return Promise.resolve([]);
+        }
     }
 
     refresh(): void {
