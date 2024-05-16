@@ -47,35 +47,30 @@
       "type": "object",
       "title": "Playwright Runner by Koushik",
       "properties": {
-        "ortoniortoniPlaywrightTestRunner.environments": {
+        "ortoniPlaywrightTestRunner.environments": {
           "type": "object",
           "description": "Environment variables for different environments",
           "properties": {
             "Develop": {
               "type": "string",
               "default": "TEST_ENV=devNational",
-              "description": "Environment variable for Development environment"
+              "description": "Environment variable for Development"
             },
             "Staging": {
               "type": "string",
               "default": "TEST_ENV=stagingNational",
-              "description": "Environment variable for Staging environment"
+              "description": "Environment variable for Staging"
             },
             "Production": {
               "type": "string",
               "default": "TEST_ENV=prod",
-              "description": "Environment variable for Production environment"
-            },
-            "No Environment": {
-              "type": "string",
-              "default": "",
-              "description": "No Environment required"
+              "description": "Environment variable for Production"
             }
           }
         },
-        "ortoniortoniPlaywrightTestRunner.defaultEnvironment": {
+        "ortoniPlaywrightTestRunner.defaultEnvironment": {
           "type": "string",
-          "default": "No Environment",
+          "default": "Develop",
           "description": "Default environment to run tests"
         }
       }
@@ -93,14 +88,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ortoniortoniPlaywrightTestRunner",
-          "title": "Playwright Runner By Koushik",
+          "id": "ortoniPlaywrightRunner",
+          "title": "Playwright runner by Koushik",
           "icon": "images/logo.png"
         }
       ]
     },
     "views": {
-      "ortoniortoniPlaywrightTestRunner": [
+      "ortoniPlaywrightRunner": [
         {
           "id": "playwrightEnvironmentSelector",
           "name": "Environment Selector"
