@@ -34,6 +34,10 @@ The Playwright Runner by Koushik VS Code extension simplifies the process of run
 - Define your test environments and configurations in the extension settings.
 - Start running Playwright tests effortlessly from your TypeScript or JavaScript files with just a few clicks!
 
+## Instruction
+![Set the environment](https://github.com/ortoniKC/playwright-runner-vscode-extension/assets/58769833/e84545d8-a269-4779-abb4-46cbbd31a344)
+
+
 
 ### Requirements
 * Use GitBash as your default VSCode terminal
