@@ -67,8 +67,40 @@
               "description": "Environment variable for Production environment"
             }
           }
+        },
+        "playwrightTestRunner.defaultEnvironment": {
+          "type": "string",
+          "default": "Develop",
+          "description": "Default environment to run tests"
         }
       }
+    },
+    "commands": [
+      {
+        "command": "extension.playwrightTest",
+        "title": "Run Playwright Test"
+      },
+      {
+        "command": "extension.setDefaultEnvironment",
+        "title": "Set Default Environment"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "playwrightRunner",
+          "title": "Playwright",
+          "icon": "images/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "playwrightRunner": [
+        {
+          "id": "playwrightEnvironmentSelector",
+          "name": "Environment Selector"
+        }
+      ]
     }
   },
   "scripts": {
