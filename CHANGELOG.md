@@ -1,10 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] 14-10-2021
+## 1.0.0
 - Initial release
 
-## [1.0.1] 16-10-2021
+## 1.0.1
 - Added Regex to identify the unique test
 - Added test file name to avoid duplicate tests name
 
@@ -23,4 +23,17 @@ All notable changes to this project will be documented in this file.
 - **Fixed**: Minor bugs and issues.
   - Resolved issues related to hardcoding environment variables, improving code maintainability and scalability.
 
-This change log outlines the key updates and improvements introduced in version 1.1.0 of the extension, focusing on the addition of customizable environment variables and improvements in flexibility and user experience.
+## Version 2.0.1
+
+- Updated extension to ensure compatibility with the latest VS Code API.
+- Improved error handling and error messages for better user experience.
+- Enhanced documentation and added a detailed README file.
+    - Implemented a command extension.openSettings to easily access the extension settings from the editor.
+    - Introduced environment tree view functionality using EnvironmentTreeViewProvider for managing test environments.
+    - Registered event listeners to handle changes to the ortoniPlaywrightTestRunner.environments setting and automatically refresh the tree view.
+    - Added the setDefaultEnvironment command to set the default environment for running tests.
+    - Modified the extension.playwrightTest command to utilize the selected environment configuration when executing Playwright tests.
+
+## Version 2.0.2
+
+
