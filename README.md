@@ -18,7 +18,7 @@ The Playwright Runner by Koushik VS Code extension simplifies the process of run
 4. **Managing Environments**:
    - Access the environment selector from the "Playwright runner by Koushik" view in the Activity Bar.
    - View and select different environments from the tree view.
-   - Set the default environment for running tests by right-clicking on an environment and selecting "Set Default Environment".
+   - Set the default environment for running tests
 
 5. **Customization**:
    - Customize default environment configurations and default settings according to your project's requirements.

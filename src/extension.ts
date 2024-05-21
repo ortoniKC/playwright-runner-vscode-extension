@@ -10,7 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 	const config = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner");
-	const environments = config.get<{ [key: string]: string }>("environments")!;
+	let environments = config.get<{ [key: string]: string }>("environments")!;
 	let defaultEnvironment = config.get<string>("defaultEnvironment")!;
 
 	const environmentProvider = new EnvironmentTreeViewProvider(environments, defaultEnvironment);
@@ -20,11 +20,13 @@ export function activate(context: vscode.ExtensionContext) {
 	// Listen for changes to the 'ortoniPlaywrightTestRunner.environments' setting
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration(event => {
-			if (event.affectsConfiguration('ortoniPlaywrightTestRunner.environments')) {
+			if (event.affectsConfiguration('ortoniPlaywrightTestRunner.environments') || event.affectsConfiguration('ortoniPlaywrightTestRunner.defaultEnvironment')) {
 				// Refresh environments and update tree view
-				const updatedEnvironments = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<{ [key: string]: string }>("environments")!;
-				const updatedDefaultEnvironment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment")!;
-				environmentProvider.refresh(updatedEnvironments, updatedDefaultEnvironment);
+				environments = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<{ [key: string]: string }>("environments")!;
+				defaultEnvironment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment")!;
+				environmentProvider.refresh(environments, defaultEnvironment);
+				// Refresh the CodeLenses
+				vscode.commands.executeCommand('vscode.executeCodeLensProvider', vscode.window.activeTextEditor?.document.uri);
 			}
 		})
 	);
@@ -61,9 +63,10 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			const testFile = match.testFile;
-			const testName = match.testName.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&").replace(/\s+/g, "\\s+"); // Escaping special characters
-			const endMatch = "$";
-			terminal.sendText(`${envCommand} npx playwright test ${testFile} -g "${testName + endMatch}"`);
+			// Properly escape testName for the command line
+			const testName = match.testName.replace(/["\\]/g, '\\$&'); // Escape quotes and backslashes
+			const fullCommand = `${envCommand} npx playwright test ${testFile} -g "${testName}"`.trim();
+			terminal.sendText(fullCommand);
 		}
 	);
 
@@ -90,27 +93,32 @@ export function activate(context: vscode.ExtensionContext) {
 		const doc = window.activeTextEditor.document;
 		const currentlyOpenTabfileName = path.basename(doc.fileName);
 
+		let currentSuiteName: string | null = null;
+
 		for (let index = 0; index < doc.lineCount; index++) {
 			const line = doc.lineAt(index).text;
-			if (isTest.test(line)) {
-				const testNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
-				if (testNameMatch) {
+			if (isSuite.test(line)) {
+				const suiteNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
+				if (suiteNameMatch) {
+					currentSuiteName = suiteNameMatch[2];
 					let match = {
 						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
-						testName: testNameMatch[2],
+						testName: suiteNameMatch[2],
 						testFile: currentlyOpenTabfileName,
-						isTestSet: "$(testing-run-icon) Execute Playwright Test",
+						isTestSet: "Execute Playwright Suite",
 					};
 					matches.push(match);
 				}
-			} else if (isSuite.test(line)) {
+			}
+			if (isTest.test(line)) {
 				const testNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
 				if (testNameMatch) {
+					const fullTestName = currentSuiteName ? `${currentSuiteName} ${testNameMatch[2]}` : testNameMatch[2];
 					let match = {
 						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
-						testName: testNameMatch[2],
+						testName: fullTestName,
 						testFile: currentlyOpenTabfileName,
-						isTestSet: "Execute Playwright Suite",
+						isTestSet: "$(testing-run-icon) Execute Playwright Test",
 					};
 					matches.push(match);
 				}

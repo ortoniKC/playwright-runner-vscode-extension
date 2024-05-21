@@ -34,6 +34,19 @@ All notable changes to this project will be documented in this file.
     - Added the setDefaultEnvironment command to set the default environment for running tests.
     - Modified the extension.playwrightTest command to utilize the selected environment configuration when executing Playwright tests.
 
-## Version 2.0.2
+## Version 2.0.3
 
+**Enhancements**
+- Improved Command Execution: Commands are now dynamically generated and executed in the terminal, with proper escaping for special characters in test names.
+- Robust CodeLens Support: Enhanced CodeLens support for individual tests and test.describe blocks, ensuring accurate command generation and execution.
+- Real-time Updates: CodeLenses now refresh in real-time when environment settings are updated, ensuring the latest configurations are always in use.
+
+**Bug Fixes**
+- Execution support on older version of VS Code editor
+- Terminal Handling: Fixed issues where commands would not execute properly if a terminal was already running a command.
+- Special Character Escaping: Corrected problems with escaping special characters in test names, ensuring accurate test execution.
+- Suite Execution: Resolved issues where tests within test.describe blocks would not execute correctly, ensuring all tests are properly prefixed and matched.
+
+**Known Issues**
+- Partial Test Name Matches: In some cases, tests with similar names might cause multiple tests to run. Ensure test names are unique to avoid this issue.
 

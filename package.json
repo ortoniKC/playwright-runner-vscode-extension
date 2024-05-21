@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.89.0"
+    "vscode": "^1.60.0"
   },
   "galleryBanner": {
     "color": "#C80000",
