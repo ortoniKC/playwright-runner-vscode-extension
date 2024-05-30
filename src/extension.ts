@@ -71,8 +71,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const languages = ["typescript", "javascript"];
 	const window = vscode.window;
-	const isTest = /^\s*(it|test|test.only)\s*\(\s*['"]/;
-	const isSuite = /^\s*(describe|test\.describe)\s*\(\s*['"]/;
+	const isTest = /^\s*(it|test|test\.only)\s*\(\s*[\r\n]*\s*['"]/m;
+	const isSuite = /^\s*(describe|test\.describe|test\.describe.only)\s*\(\s*[\s\S]*?['"]/m;
 	const isTestNameHasSingleOrDoubleQuotes = /(['"])(.*?)\1/;
 
 	languages.forEach((language) => {
@@ -89,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		let matches = [];
-		const doc = window.activeTextEditor.document;
+		const doc = document;
 		const currentlyOpenTabfileName = path.basename(doc.fileName);
 
 		let currentSuiteName: string | null = null;
