@@ -2,7 +2,7 @@
   "name": "ortoni",
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "publisher": "ortoni",
   "author": {
     "name": "Koushik Chatterjee"
@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.60.0"
+    "vscode": "^1.61.0"
   },
   "galleryBanner": {
     "color": "#C80000",

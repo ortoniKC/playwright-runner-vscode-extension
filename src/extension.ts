@@ -63,16 +63,15 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			const testFile = match.testFile;
-			// Properly escape testName for the command line
-			const testName = match.testName.replace(/["\\]/g, '\\$&'); // Escape quotes and backslashes
-			const fullCommand = `${envCommand} npx playwright test ${testFile} -g "${testName}"`.trim();
+			const testLine = match.range.start.line + 1; // Line numbers are 1-based in the command
+			const fullCommand = `${envCommand} npx playwright test ${testFile}:${testLine}`.trim();
 			terminal.sendText(fullCommand);
 		}
 	);
 
 	const languages = ["typescript", "javascript"];
 	const window = vscode.window;
-	const isTest = /^\s*(it|test)\s*\(\s*['"]/;
+	const isTest = /^\s*(it|test|test.only)\s*\(\s*['"]/;
 	const isSuite = /^\s*(describe|test\.describe)\s*\(\s*['"]/;
 	const isTestNameHasSingleOrDoubleQuotes = /(['"])(.*?)\1/;
 
