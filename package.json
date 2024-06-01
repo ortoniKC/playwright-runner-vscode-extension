@@ -39,7 +39,8 @@
   ],
   "activationEvents": [
     "onLanguage:typescript",
-    "onLanguage:javascript"
+    "onLanguage:javascript",
+    "onLanguage:feature"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -76,45 +77,45 @@
         "ortoniPlaywrightTestRunner.defaultEnvironment": {
           "type": "string",
           "default": "No Environment",
-          "description": "Environment not set"
-        }
-      },
-      "configurationDefaults": {
-        "ortoniPlaywrightTestRunner.environments": {
-          "Develop": "TEST_ENV=devNational",
-          "Staging": "TEST_ENV=stagingNational",
-          "Production": "TEST_ENV=prod",
-          "No Environment": ""
+          "description": "Environment"
         },
-        "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
-      }
-    },
-    "commands": [
-      {
-        "command": "extension.playwrightTest",
-        "title": "Run Playwright Test"
+        "configurationDefaults": {
+          "ortoniPlaywrightTestRunner.environments": {
+            "Develop": "TEST_ENV=devNational",
+            "Staging": "TEST_ENV=stagingNational",
+            "Production": "TEST_ENV=prod",
+            "No Environment": ""
+          },
+          "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
+        }
       },
-      {
-        "command": "extension.setDefaultEnvironment",
-        "title": "Set Default Environment"
+      "commands": [
+        {
+          "command": "extension.playwrightTest",
+          "title": "Run Playwright Test"
+        },
+        {
+          "command": "extension.setDefaultEnvironment",
+          "title": "Set Default Environment"
+        }
+      ],
+      "viewsContainers": {
+        "activitybar": [
+          {
+            "id": "ortoniPlaywrightRunner",
+            "title": "Playwright runner by Koushik",
+            "icon": "images/logo.png"
+          }
+        ]
+      },
+      "views": {
+        "ortoniPlaywrightRunner": [
+          {
+            "id": "ortoniPlaywrightTestRunner",
+            "name": "Environment Selector"
+          }
+        ]
       }
-    ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "ortoniPlaywrightRunner",
-          "title": "Playwright runner by Koushik",
-          "icon": "images/logo.png"
-        }
-      ]
-    },
-    "views": {
-      "ortoniPlaywrightRunner": [
-        {
-          "id": "playwrightEnvironmentSelector",
-          "name": "Environment Selector"
-        }
-      ]
     }
   },
   "scripts": {

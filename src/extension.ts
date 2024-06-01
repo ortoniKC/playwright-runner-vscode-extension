@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { EnvironmentTreeViewProvider } from './EnvironmentTreeViewProvider';
-
+import { MatchType } from './MatchType';
 export function activate(context: vscode.ExtensionContext) {
 	// To open setting from the tree view
 	context.subscriptions.push(
@@ -12,10 +12,9 @@ export function activate(context: vscode.ExtensionContext) {
 	const config = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner");
 	let environments = config.get<{ [key: string]: string }>("environments")!;
 	let defaultEnvironment = config.get<string>("defaultEnvironment")!;
-
 	const environmentProvider = new EnvironmentTreeViewProvider(environments, defaultEnvironment);
 
-	vscode.window.registerTreeDataProvider('playwrightEnvironmentSelector', environmentProvider);
+	vscode.window.registerTreeDataProvider('ortoniPlaywrightTestRunner', environmentProvider);
 
 	// Listen for changes to the 'ortoniPlaywrightTestRunner.environments' setting
 	context.subscriptions.push(
@@ -43,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let disposable = vscode.commands.registerCommand(
 		"extension.playwrightTest",
-		async (match) => {
+		async (match: MatchType) => {
 			// Fetch the default environment each time the command is executed
 			const environment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment");
 
@@ -61,16 +60,23 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage(`Failed to create or show terminal: ${error}`);
 				return;
 			}
-
+			const scenarioName = match.testName.replace(/^(Feature:|Scenario Outline:|Scenario:)\s*/, '');
 			const testFile = match.testFile;
 			const testLine = match.range.start.line + 1; // Line numbers are 1-based in the command
-			const fullCommand = `${envCommand} npx playwright test ${testFile}:${testLine}`.trim();
+			let fullCommand: string;
+			if (testFile.endsWith('.feature')) {
+				fullCommand = `${envCommand} --name="^${scenarioName.trim()}$"`.trim();
+			} else {
+				fullCommand = `${envCommand} npx playwright test ${testFile}:${testLine}`.trim();
+			}
 			terminal.sendText(fullCommand);
 		}
 	);
 
-	const languages = ["typescript", "javascript"];
+	const languages = ["typescript", "javascript", "feature"];
 	const window = vscode.window;
+	const isFeature = /^\s*Feature:\s*(.*)/;
+	const isScenario = /^\s*(Scenario|Scenario Outline):\s*(.*)/;
 	const isTest = /^\s*(it|test|test\.only)\s*\(\s*[\r\n]*\s*['"]/m;
 	const isSuite = /^\s*(describe|test\.describe|test\.describe.only)\s*\(\s*[\s\S]*?['"]/m;
 	const isTestNameHasSingleOrDoubleQuotes = /(['"])(.*?)\1/;
@@ -100,7 +106,9 @@ export function activate(context: vscode.ExtensionContext) {
 				const suiteNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
 				if (suiteNameMatch) {
 					currentSuiteName = suiteNameMatch[2];
-					let match = {
+
+
+					let match: MatchType = {
 						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
 						testName: suiteNameMatch[2],
 						testFile: currentlyOpenTabfileName,
@@ -113,11 +121,37 @@ export function activate(context: vscode.ExtensionContext) {
 				const testNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
 				if (testNameMatch) {
 					const fullTestName = currentSuiteName ? `${currentSuiteName} ${testNameMatch[2]}` : testNameMatch[2];
-					let match = {
+					let match: MatchType = {
 						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
 						testName: fullTestName,
 						testFile: currentlyOpenTabfileName,
 						isTestSet: "$(testing-run-icon) Execute Playwright Test",
+					};
+					matches.push(match);
+				}
+			}
+			if (isFeature.test(line)) {
+				const featureNameMatch = line.match(isFeature);
+				if (featureNameMatch) {
+					let match: MatchType = {
+						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
+						testName: `Feature: ${featureNameMatch[1]}`,
+						testFile: currentlyOpenTabfileName,
+						isTestSet: "Execute Cucumber Feature",
+						lineNumber: index + 1,
+					};
+					matches.push(match);
+				}
+			}
+			if (isScenario.test(line)) {
+				const scenarioNameMatch = line.match(isScenario);
+				if (scenarioNameMatch) {
+					let match: MatchType = {
+						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
+						testName: `${scenarioNameMatch[1]}: ${scenarioNameMatch[2]}`,
+						testFile: currentlyOpenTabfileName,
+						isTestSet: "Execute Cucumber Scenario",
+						lineNumber: index + 1,
 					};
 					matches.push(match);
 				}
