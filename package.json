@@ -2,7 +2,7 @@
   "name": "ortoni",
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
-  "version": "2.0.2",
+  "version": "2.0.5",
   "publisher": "ortoni",
   "author": {
     "name": "Koushik Chatterjee"
@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ortoniKC/playwright-runner-vscode-extension/blob/master/README.md",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.60.0"
+    "vscode": "^1.61.0"
   },
   "galleryBanner": {
     "color": "#C80000",
@@ -39,7 +39,8 @@
   ],
   "activationEvents": [
     "onLanguage:typescript",
-    "onLanguage:javascript"
+    "onLanguage:javascript",
+    "onLanguage:feature"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -76,17 +77,17 @@
         "ortoniPlaywrightTestRunner.defaultEnvironment": {
           "type": "string",
           "default": "No Environment",
-          "description": "Environment not set"
-        }
-      },
-      "configurationDefaults": {
-        "ortoniPlaywrightTestRunner.environments": {
-          "Develop": "TEST_ENV=devNational",
-          "Staging": "TEST_ENV=stagingNational",
-          "Production": "TEST_ENV=prod",
-          "No Environment": ""
+          "description": "Environment"
         },
-        "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
+        "configurationDefaults": {
+          "ortoniPlaywrightTestRunner.environments": {
+            "Develop": "TEST_ENV=devNational",
+            "Staging": "TEST_ENV=stagingNational",
+            "Production": "TEST_ENV=prod",
+            "No Environment": ""
+          },
+          "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
+        }
       }
     },
     "commands": [
@@ -111,7 +112,7 @@
     "views": {
       "ortoniPlaywrightRunner": [
         {
-          "id": "playwrightEnvironmentSelector",
+          "id": "ortoniPlaywrightTestRunner",
           "name": "Environment Selector"
         }
       ]

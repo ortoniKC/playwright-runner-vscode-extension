@@ -50,3 +50,19 @@ All notable changes to this project will be documented in this file.
 **Known Issues**
 - Partial Test Name Matches: In some cases, tests with similar names might cause multiple tests to run. Ensure test names are unique to avoid this issue.
 
+## Verison 2.0.4
+**Added**
+- Line Number Execution: Now the extension executes tests based on the file name and line number,    providing more accurate test execution.
+- Dynamic Configuration Updates: Automatically refreshes environments and configurations without restarting VS Code.
+**Fixed**
+-- Command Execution: Resolved issues where the grep command failed for certain test names.
+Improved
+-- CodeLens Integration: Enhanced CodeLens to support both individual tests and test suites, ensuring more seamless test management.
+
+## Version 2.0.5
+**Added**
+- Code lens for Cucumber Scenario & Scenario Outline files
+
+**Note**
+- Add the execution command within the setting.json from the extension settings
+- Extension gets only the scenario name and pass it to the existing command set by user in the previous step
