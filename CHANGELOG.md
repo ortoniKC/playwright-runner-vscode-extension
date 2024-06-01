@@ -58,3 +58,7 @@ All notable changes to this project will be documented in this file.
 -- Command Execution: Resolved issues where the grep command failed for certain test names.
 Improved
 -- CodeLens Integration: Enhanced CodeLens to support both individual tests and test suites, ensuring more seamless test management.
+
+## Version 2.0.5
+**Added**
+- Code lens for Cucumber Scenario & Scenario Outline files

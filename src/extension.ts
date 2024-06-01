@@ -75,7 +75,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const languages = ["typescript", "javascript", "feature"];
 	const window = vscode.window;
-	const isFeature = /^\s*Feature:\s*(.*)/;
 	const isScenario = /^\s*(Scenario|Scenario Outline):\s*(.*)/;
 	const isTest = /^\s*(it|test|test\.only)\s*\(\s*[\r\n]*\s*['"]/m;
 	const isSuite = /^\s*(describe|test\.describe|test\.describe.only)\s*\(\s*[\s\S]*?['"]/m;

@@ -2,7 +2,7 @@
   "name": "ortoni",
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "publisher": "ortoni",
   "author": {
     "name": "Koushik Chatterjee"
@@ -88,34 +88,34 @@
           },
           "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
         }
-      },
-      "commands": [
-        {
-          "command": "extension.playwrightTest",
-          "title": "Run Playwright Test"
-        },
-        {
-          "command": "extension.setDefaultEnvironment",
-          "title": "Set Default Environment"
-        }
-      ],
-      "viewsContainers": {
-        "activitybar": [
-          {
-            "id": "ortoniPlaywrightRunner",
-            "title": "Playwright runner by Koushik",
-            "icon": "images/logo.png"
-          }
-        ]
-      },
-      "views": {
-        "ortoniPlaywrightRunner": [
-          {
-            "id": "ortoniPlaywrightTestRunner",
-            "name": "Environment Selector"
-          }
-        ]
       }
+    },
+    "commands": [
+      {
+        "command": "extension.playwrightTest",
+        "title": "Run Playwright Test"
+      },
+      {
+        "command": "extension.setDefaultEnvironment",
+        "title": "Set Default Environment"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ortoniPlaywrightRunner",
+          "title": "Playwright runner by Koushik",
+          "icon": "images/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "ortoniPlaywrightRunner": [
+        {
+          "id": "ortoniPlaywrightTestRunner",
+          "name": "Environment Selector"
+        }
+      ]
     }
   },
   "scripts": {
