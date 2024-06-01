@@ -62,3 +62,7 @@ Improved
 ## Version 2.0.5
 **Added**
 - Code lens for Cucumber Scenario & Scenario Outline files
+
+**Note**
+- Add the execution command within the setting.json from the extension settings
+- Extension gets only the scenario name and pass it to the existing command set by user in the previous step
