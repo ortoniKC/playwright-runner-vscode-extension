@@ -130,19 +130,6 @@ export function activate(context: vscode.ExtensionContext) {
 					matches.push(match);
 				}
 			}
-			if (isFeature.test(line)) {
-				const featureNameMatch = line.match(isFeature);
-				if (featureNameMatch) {
-					let match: MatchType = {
-						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
-						testName: `Feature: ${featureNameMatch[1]}`,
-						testFile: currentlyOpenTabfileName,
-						isTestSet: "Execute Cucumber Feature",
-						lineNumber: index + 1,
-					};
-					matches.push(match);
-				}
-			}
 			if (isScenario.test(line)) {
 				const scenarioNameMatch = line.match(isScenario);
 				if (scenarioNameMatch) {
