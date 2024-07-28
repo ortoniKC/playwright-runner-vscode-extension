@@ -60,14 +60,22 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage(`Failed to create or show terminal: ${error}`);
 				return;
 			}
-			const scenarioName = match.testName.replace(/^(Feature:|Scenario Outline:|Scenario:)\s*/, '');
+			const scenarioName = match.testName.replace(/^(Feature:|Scenario Outline:|Scenario:)\s*/, '').trim();
 			const testFile = match.testFile;
 			const testLine = match.range.start.line + 1; // Line numbers are 1-based in the command
 			let fullCommand: string;
 			if (testFile.endsWith('.feature')) {
-				fullCommand = `${envCommand} --name="^${scenarioName.trim()}$"`.trim();
+				// For Cucumber feature files
+				fullCommand = `${envCommand} --name="^${scenarioName}$"`.trim();
 			} else {
-				fullCommand = `${envCommand} npx playwright test ${testFile}:${testLine}`.trim();
+				const regex = /\$\{([^}]*)\}/;
+				const additionalParamMatch = envCommand.match(regex);
+				const additionalParam = additionalParamMatch ? additionalParamMatch[1] : '';
+				const cleanedEnvCommand = additionalParamMatch ? envCommand.replace(regex, '').trim() : envCommand;
+				fullCommand = `${cleanedEnvCommand} npx playwright test ${testFile}:${testLine}`.trim();
+				if (additionalParam) {
+					fullCommand += ` ${additionalParam}`;
+				}
 			}
 			terminal.sendText(fullCommand);
 		}
