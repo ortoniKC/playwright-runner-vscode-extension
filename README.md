@@ -25,6 +25,10 @@ The Playwright Runner by Koushik VS Code extension simplifies the process of run
    - Access the environment selector from the "Playwright runner by Koushik" view in the Activity Bar.
    - View and select different environments from the tree view.
    - Set the default environment for running tests
+   - Add additional command with ${command}
+   ```
+    "ENV_NAME": "TEST_ENV=stagingNational ${--config=play.config.ts --headed}",
+   ```
 
 6. **Customization**:
    - Customize default environment configurations and default settings according to your project's requirements.
@@ -41,7 +45,7 @@ The Playwright Runner by Koushik VS Code extension simplifies the process of run
 - Start running Playwright tests effortlessly from your TypeScript or JavaScript files with just a few clicks!
 
 ## Instruction
-![Set the environment](https://github.com/ortoniKC/playwright-runner-vscode-extension/assets/58769833/b4f8d86a-42b4-44b6-bb2c-ffee03d27a0a)
+![Setings.json](<Set the environment.png>)
 
 ### Requirements
 * Use GitBash as your default VSCode terminal

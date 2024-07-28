@@ -66,3 +66,7 @@ Improved
 **Note**
 - Add the execution command within the setting.json from the extension settings
 - Extension gets only the scenario name and pass it to the existing command set by user in the previous step
+
+## Version 2.0.6
+**Added**
+- Environment Variable Extraction: Extracted and handled text within ${} in environment commands, passing it to the command line.
