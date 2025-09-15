@@ -1,8 +1,110 @@
+// --- Test List Storage & Helpers ---
+let testList: MatchType[] = [];
+
+function addToTestList(test: MatchType) {
+  // Avoid duplicates by test name and file
+  if (
+    !testList.some(
+      (t) => t.testName === test.testName && t.testFile === test.testFile
+    )
+  ) {
+    testList.push(test);
+    vscode.window.showInformationMessage(`Added to list: ${test.testName}`);
+  } else {
+    vscode.window.showWarningMessage(`Test already in list: ${test.testName}`);
+  }
+}
+
+function clearTestList() {
+  testList = [];
+  vscode.window.showInformationMessage("Test list cleared.");
+}
+
+async function runTestList(
+  environments: { [key: string]: string },
+  defaultEnvironment: string
+) {
+  if (testList.length === 0) {
+    vscode.window.showWarningMessage("Test list is empty.");
+    return;
+  }
+  const envCommand = environments[defaultEnvironment];
+  let terminal: vscode.Terminal;
+  try {
+    terminal =
+      vscode.window.terminals.length > 0
+        ? vscode.window.terminals[0]
+        : vscode.window.createTerminal();
+    terminal.show();
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `Failed to create or show terminal: ${error}`
+    );
+    return;
+  }
+
+  // Separate feature and non-feature tests
+  const featureTests = testList.filter((match) =>
+    match.testFile.endsWith(".feature")
+  );
+  const codeTests = testList.filter(
+    (match) => !match.testFile.endsWith(".feature")
+  );
+
+  // Run all code tests in a single command
+  if (codeTests.length > 0) {
+    const regex = /\$\{([^}]*)\}/;
+    const additionalParamMatch = envCommand.match(regex);
+    const additionalParam = additionalParamMatch ? additionalParamMatch[1] : "";
+    const cleanedEnvCommand = additionalParamMatch
+      ? envCommand.replace(regex, "").trim()
+      : envCommand;
+    const testLocations = codeTests
+      .map((match) => `${match.testFile}:${match.range.start.line + 1}`)
+      .join(" ");
+    let fullCommand =
+      `${cleanedEnvCommand} npx playwright test ${testLocations}`.trim();
+    if (additionalParam) {
+      fullCommand += ` ${additionalParam}`;
+    }
+    terminal.sendText(fullCommand);
+  }
+
+  // Run each feature test separately (Cucumber)
+  for (const match of featureTests) {
+    const scenarioName = match.testName
+      .replace(/^(Feature:|Scenario Outline:|Scenario:)\s*/, "")
+      .trim();
+    let fullCommand = `${envCommand} --name="^${scenarioName}$"`.trim();
+    terminal.sendText(fullCommand);
+  }
+
+  vscode.window.showInformationMessage("Test list executed.");
+}
 import * as vscode from "vscode";
 import * as path from "path";
 import { EnvironmentTreeViewProvider } from "./EnvironmentTreeViewProvider";
 import { MatchType } from "./MatchType";
 export function activate(context: vscode.ExtensionContext) {
+  // Register new commands for test list management
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.addToTestList",
+      (match: MatchType) => {
+        addToTestList(match);
+      }
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.runTestList", () => {
+      runTestList(environments, defaultEnvironment);
+    })
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.clearTestList", () => {
+      clearTestList();
+    })
+  );
   // To open setting from the tree view
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.openSettings", () => {
@@ -220,14 +322,29 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }
 
-    return matches.map(
-      (match) =>
-        new vscode.CodeLens(match.range, {
-          title: match.isTestSet,
-          command: "extension.playwrightTest",
-          arguments: [match],
-        })
-    );
+    // For each match, provide four CodeLenses: Run, Add to List, Run List, Clear List
+    return matches.flatMap((match) => [
+      new vscode.CodeLens(match.range, {
+        title: match.isTestSet,
+        command: "extension.playwrightTest",
+        arguments: [match],
+      }),
+      new vscode.CodeLens(match.range, {
+        title: "Add to List",
+        command: "extension.addToTestList",
+        arguments: [match],
+      }),
+      new vscode.CodeLens(match.range, {
+        title: "Run List",
+        command: "extension.runTestList",
+        arguments: [],
+      }),
+      new vscode.CodeLens(match.range, {
+        title: "Clear List",
+        command: "extension.clearTestList",
+        arguments: [],
+      }),
+    ]);
   }
 
   context.subscriptions.push(disposable);
