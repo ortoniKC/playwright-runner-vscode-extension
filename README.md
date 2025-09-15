@@ -1,59 +1,100 @@
-# Playwright Runner by Koushik
-The Playwright Runner by Koushik VS Code extension simplifies the process of running Playwright tests directly from your editor. With this extension, you can easily execute Playwright tests & Cucumber tests, manage different test environments, and streamline your testing workflow without leaving VS Code.
+# Ortoni Runner (Playwright Test Runner)
 
-### Usage:
-1. **Installation**:
-   - Install the extension from the Visual Studio Code Marketplace by searching for "Playwright Runner by Koushik" and clicking on "Install".
+A friendly, no-fuss extension that lets you run Playwright tests and Cucumber scenarios directly from VS Code — no terminal fumbling, no copying commands. Install, point your environment (once), then click to run tests.
 
-2. **Setting Up Environments**:
-   - Open your user settings (File > Preferences > Settings) and navigate to the extension settings under "Playwright Runner by Koushik".
-   - Define your test environments and their corresponding configurations (e.g., development, staging, production).
-   -  Define your cucumber test commands with different environment names
+---
 
-3. **Running Playwright Tests**:
-   - Navigate to your TypeScript or JavaScript test file containing Playwright tests.
-   - The extension automatically detects test functions and suites and adds "Run Playwright Test" code lenses.
-   - Click on the code lens next to a test to execute it.
+## What’s new (v2.0.7)
 
-4. **Running Cucumber scenarios**:
-   - Navigate to your feature file
-   - The extension automatically detects Scenario & Scenario Outline
-   - Click on the code lens next to execute it
-   - After clicking it will add the scenario name to the existing command that user already set   
+- **Test List sidebar**: collect tests or scenarios from files, view them in the Activity Bar, and run or clear the entire list with a single click.
+- **Immediate UI updates**: when you add/remove tests, the code lenses update instantly in the active file — no reload needed.
+- **Feature file support**: improved detection and CodeLens support for `.feature` (Cucumber) files.
+- **Cleaner UI**: “Run List” and “Clear List” actions only appear when there’s at least one item in your list. Code lenses appear only in the file you’re actively editing.
 
-5. **Managing Environments**:
-   - Access the environment selector from the "Playwright runner by Koushik" view in the Activity Bar.
-   - View and select different environments from the tree view.
-   - Set the default environment for running tests
-   - Add additional command with ${command}
-   ```
-    "ENV_NAME": "TEST_ENV=stagingNational ${--config=play.config.ts --headed}",
-   ```
+---
 
-6. **Customization**:
-   - Customize default environment configurations and default settings according to your project's requirements.
-   - Use the provided commands and settings to tailor the extension to your testing workflow.
+[![Ortoni Runner](images/demo.png)](images/demo.png)
 
-7. **Accessing Settings**:
-   - Open the extension settings directly from the editor side bar by executing the "Open Settings" command.
-   - Modify environment configurations, default settings, and other preferences conveniently from within VS Code.
+## Quick Start — 1 minute to running tests
 
-### Get Started:
-- [Download link](https://marketplace.visualstudio.com/items?itemName=ortoni.ortoni)
-- Install the Playwright Runner by Koushik extension.
-- Define your test environments and configurations in the extension settings.
-- Start running Playwright tests effortlessly from your TypeScript or JavaScript files with just a few clicks!
+1. Install the extension from the VS Code Marketplace: **Ortoni Runner - Playwright Test Runner**.
+2. Open your project in VS Code (the project that contains your Playwright or Cucumber tests).
+3. Configure environments (one-time — optional): open **Settings → Extensions → Ortoni Runner - Playwright Test Runner → Environments** and add any environment commands you use (examples below).
+4. Open a test file (`*.ts`, `*.js`) or a feature file (`*.feature`). Look for the small actions (CodeLenses) above tests or scenarios.
+5. Click **Execute** to run a single test, or **Add to List** to collect tests and run them later from the sidebar.
 
-## Instruction
-![Setings.json](<Set the environment.png>)
+---
 
-### Requirements
-* Use GitBash as your default VSCode terminal
-* Playwright config file required to execute the test
-* Enable the testMatch in config file with test script path
-* Cucumber config and other setup is required - It gets only the scenario name and pass it to the terminal
+## Features — what you can do
 
-## Release Notes
-Refer to the change log section
+- Run **single Playwright tests** directly from the editor.
+- Run **Cucumber scenarios** (feature files) by clicking the CodeLens next to the scenario.
+- Build a **Test List** (collect tests from multiple files) and run the whole list at once.
+- Switch and manage **test environments** (Development / Staging / Production) from a tree in the Activity Bar.
+- All UI is intentionally simple: only show list-related actions when there is something in the list, and only show CodeLenses for the file you’re focused on.
 
-**Enjoy!**
+---
+
+## How to use — step-by-step
+
+### Running a single test
+
+1. Open a test file (`.ts` or `.js`).
+2. Find the **Execute Playwright Test** action above the test (CodeLens).
+3. Click it — the extension will run the test in your terminal using the environment you selected.
+
+### Running a scenario from a feature file
+
+1. Open a `.feature` file.
+2. Find the CodeLens next to `Scenario:` lines.
+3. Click the CodeLens to run that scenario. The extension sends only the scenario name to your configured command so your test runner will run that scenario.
+
+### Using the Test List (collect & run)
+
+1. Click **Add to List** on any test or scenario you want to collect.
+2. Open the Activity Bar and choose **Ortoni Runner - Playwright Test Runner → Test List**.
+3. The Test List shows items you added. Click any item to run it individually.
+4. Use **Run** (top-right of the Test List view) to run every item in the list.
+5. Use **Clear** (top-right) to empty the list.
+
+   - The Run / Clear buttons appear only when the list contains at least one test.
+   - When you add or clear items, the editor UI updates immediately — no reload needed.
+
+---
+
+## Setting up environments
+
+You can tell the extension how to run tests in different environments (for example: development, staging, production). This is done in VS Code Settings:
+
+1. Open Settings → search **OrtoniRunner.environments**.
+2. Add names and the command snippets you normally run. Example:
+
+```
+Develop:  TEST_ENV=devNational ${--config=play.config.ts --headed}
+Staging:  TEST_ENV=stagingNational ${--config=play.config.ts}
+Production: TEST_ENV=prod ${--config=play.config.ts --project=chromium}
+```
+
+- The `${...}` part is optional: put any extra Playwright CLI flags you want appended (for example `--headed` or `--config=...`).
+- After configuring, set your default environment from the Environment Selector in the Activity Bar.
+
+---
+
+## Short Tips & Troubleshooting
+
+- **If you don’t see the actions in a `.feature` file:** save the file (unsaved files sometimes hide lenses), and ensure CodeLens is enabled in VS Code settings (`editor.codeLens: true`).
+- **If Run / Clear buttons are not visible:** add at least one test to the Test List — those buttons only appear when the list has items.
+- **If a command seems not to run properly:** check the terminal for the exact command and that the environment you chose is correct.
+- **Prefer Git Bash on Windows:** it tends to handle environment variables in the same way the extension expects.
+- **Active-file-only lenses:** CodeLenses are shown only for the file you’re currently working in, which keeps the interface clean.
+
+---
+
+## Requirements
+
+- Playwright setup in your project (your Playwright config file if you use `--config`).
+- For `.feature` (Cucumber) runs, ensure your project is set up to run those scenarios — the extension extracts the scenario name and passes it to your runner.
+
+---
+
+Thanks for using **Ortoni Runner (Playwright Test Runner)** — built to make running tests faster and less error-prone. Enjoy!

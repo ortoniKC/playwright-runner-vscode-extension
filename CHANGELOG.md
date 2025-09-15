@@ -85,3 +85,9 @@ All notable changes to this project will be documented in this file.
 **Added**
 
 - Environment Variable Extraction: Extracted and handled text within ${} in environment commands, passing it to the command line.
+
+## Version2.0.7
+
+- Added user-facing **Test List** with Run & Clear controls.
+- Improved feature file support and immediate UI updates.
+- Cleaner behavior: list-related UI only shows when meaningful.

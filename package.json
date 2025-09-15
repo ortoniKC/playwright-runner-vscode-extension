@@ -1,6 +1,6 @@
 {
-  "name": "ortoni-pw-runner",
-  "displayName": "Playwright Runner by Koushik",
+  "name": "ortoni-runner",
+  "displayName": "Ortoni Runner - Playwright Test Runner",
   "description": "Run Playwright test in a click",
   "version": "2.0.7",
   "publisher": "Koushik Chatterjee - LetCode with Koushik",
@@ -47,7 +47,7 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Playwright Runner by Koushik",
+      "title": "Ortoni Runner - Playwright Test Runner",
       "properties": {
         "OrtoniRunner.environments": {
           "type": "object",
@@ -114,14 +114,15 @@
       },
       {
         "command": "extension.openSettings",
-        "title": "Open Ortoni Runner Settings"
+        "title": "Open Ortoni Runner Settings",
+        "icon": "$(gear)"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "OrtoniRunner",
-          "title": "Playwright runner by Koushik",
+          "title": "Ortoni Runner - Playwright Test Runner",
           "icon": "images/logo.png"
         }
       ]

@@ -36,6 +36,7 @@ export class EnvironmentTreeViewProvider
     const items: EnvironmentTreeItem[] = [];
 
     // Add "Open Settings" command
+    //
     items.push(
       new EnvironmentTreeItem("Open Setting", this.defaultEnvironment, {
         command: "extension.openSettings",
