@@ -5,11 +5,16 @@ import { MatchType } from "./MatchType";
 import { TestListTreeViewProvider } from "./TestListTreeViewProvider";
 
 let testList: MatchType[] = [];
+// Event emitter so we can force CodeLens provider to refresh immediately
+const codeLensEmitter = new vscode.EventEmitter<void>();
+// expose a helper for firing later (used in addToTestList/clearTestList)
+const fireCodeLensRefresh = () => codeLensEmitter.fire();
 
-function addToTestList(
+async function addToTestList(
   test: MatchType,
   testListProvider?: TestListTreeViewProvider
 ) {
+  // Avoid duplicates by test name and file
   if (
     !testList.some(
       (t) => t.testName === test.testName && t.testFile === test.testFile
@@ -19,21 +24,27 @@ function addToTestList(
     vscode.window.showInformationMessage(`Added to list: ${test.testName}`);
     try {
       testListProvider?.refresh(testList);
+      // Force CodeLens refresh so "Run List" & "Clear List" appear immediately
+      //   await vscode.commands.executeCommand("editor.action.codeLensRefresh");
+      fireCodeLensRefresh();
     } catch (err) {
-      console.error("Failed to refresh testList view:", err);
+      console.error("Failed to refresh testList view or code lenses:", err);
     }
   } else {
     vscode.window.showWarningMessage(`Test already in list: ${test.testName}`);
   }
 }
 
-function clearTestList(testListProvider?: TestListTreeViewProvider) {
+async function clearTestList(testListProvider?: TestListTreeViewProvider) {
   testList = [];
   vscode.window.showInformationMessage("Test list cleared.");
   try {
     testListProvider?.refresh(testList);
+    // Force CodeLens refresh so Run List / Clear List disappear immediately
+    // await vscode.commands.executeCommand("editor.action.codeLensRefresh");
+    fireCodeLensRefresh();
   } catch (err) {
-    console.error("Failed to refresh testList view:", err);
+    console.error("Failed to refresh testList view or code lenses:", err);
   }
 }
 
@@ -233,17 +244,25 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      [{ language: "typescript" }, { language: "javascript" }],
-      { provideCodeLenses: insertRunnerText }
-    )
-  );
+  // register CodeLens providers for TS/JS and for .feature files (pattern-based)
+  const codeLensProviderObj: vscode.CodeLensProvider = {
+    provideCodeLenses: insertRunnerText,
+    // VS Code will re-run provideCodeLenses when this event fires
+    onDidChangeCodeLenses: codeLensEmitter.event,
+  };
 
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(
+      [{ language: "typescript" }, { language: "javascript" }],
+      codeLensProviderObj
+    )
+  );
+
+  // register provider for .feature files by glob pattern so it works regardless of languageId
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
       { scheme: "file", pattern: "**/*.feature" },
-      { provideCodeLenses: insertRunnerText }
+      codeLensProviderObj
     )
   );
 
@@ -347,28 +366,47 @@ function insertRunnerText(document: vscode.TextDocument): vscode.CodeLens[] {
   }
 
   // For each match, provide four CodeLenses: Run, Add to List, Run List, Clear List
-  return matches.flatMap((match) => [
-    new vscode.CodeLens(match.range, {
-      title: match.isTestSet,
-      command: "extension.runTest",
-      arguments: [match],
-    }),
-    new vscode.CodeLens(match.range, {
-      title: "Add to List",
-      command: "extension.addToTestList",
-      arguments: [match],
-    }),
-    new vscode.CodeLens(match.range, {
-      title: "Run List",
-      command: "extension.runTestList",
-      arguments: [],
-    }),
-    new vscode.CodeLens(match.range, {
-      title: "Clear List",
-      command: "extension.clearTestList",
-      arguments: [],
-    }),
-  ]);
+  // show "Run List" and "Clear List" only if there is at least one test in the list
+  // For each match, provide CodeLenses: Run, Add to List, and optionally Run List / Clear List
+  return matches.flatMap((match) => {
+    const lenses: vscode.CodeLens[] = [
+      new vscode.CodeLens(match.range, {
+        title: match.isTestSet,
+        command: "extension.runTest",
+        arguments: [match],
+      }),
+    ];
+
+    if (!match.isTestSet.endsWith("Execute Cucumber Scenario")) {
+      lenses.push(
+        new vscode.CodeLens(match.range, {
+          title: "Add to List",
+          command: "extension.addToTestList",
+          arguments: [match],
+        })
+      );
+    }
+    // Only show Run List / Clear List if there is something in the list
+    if (
+      testList.length > 0 &&
+      !match.isTestSet.endsWith("Execute Cucumber Scenario")
+    ) {
+      lenses.push(
+        new vscode.CodeLens(match.range, {
+          title: "Run List",
+          command: "extension.runTestList",
+          arguments: [],
+        }),
+        new vscode.CodeLens(match.range, {
+          title: "Clear List",
+          command: "extension.clearTestList",
+          arguments: [],
+        })
+      );
+    }
+
+    return lenses;
+  });
 }
 
 export function deactivate() {}
