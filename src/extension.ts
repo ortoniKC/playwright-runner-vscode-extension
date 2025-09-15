@@ -110,13 +110,11 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("extension.openSettings", () => {
       vscode.commands.executeCommand(
         "workbench.action.openSettings",
-        "ortoniPlaywrightTestRunner.environments"
+        "OrtoniRunner.environments"
       );
     })
   );
-  const config = vscode.workspace.getConfiguration(
-    "ortoniPlaywrightTestRunner"
-  );
+  const config = vscode.workspace.getConfiguration("OrtoniRunner");
   let environments = config.get<{ [key: string]: string }>("environments")!;
   let defaultEnvironment = config.get<string>("defaultEnvironment")!;
   const environmentProvider = new EnvironmentTreeViewProvider(
@@ -124,26 +122,21 @@ export function activate(context: vscode.ExtensionContext) {
     defaultEnvironment
   );
 
-  vscode.window.registerTreeDataProvider(
-    "ortoniPlaywrightTestRunner",
-    environmentProvider
-  );
+  vscode.window.registerTreeDataProvider("OrtoniRunner", environmentProvider);
 
-  // Listen for changes to the 'ortoniPlaywrightTestRunner.environments' setting
+  // Listen for changes to the 'OrtoniRunner.environments' setting
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (
-        event.affectsConfiguration("ortoniPlaywrightTestRunner.environments") ||
-        event.affectsConfiguration(
-          "ortoniPlaywrightTestRunner.defaultEnvironment"
-        )
+        event.affectsConfiguration("OrtoniRunner.environments") ||
+        event.affectsConfiguration("OrtoniRunner.defaultEnvironment")
       ) {
         // Refresh environments and update tree view
         environments = vscode.workspace
-          .getConfiguration("ortoniPlaywrightTestRunner")
+          .getConfiguration("OrtoniRunner")
           .get<{ [key: string]: string }>("environments")!;
         defaultEnvironment = vscode.workspace
-          .getConfiguration("ortoniPlaywrightTestRunner")
+          .getConfiguration("OrtoniRunner")
           .get<string>("defaultEnvironment")!;
         environmentProvider.refresh(environments, defaultEnvironment);
         // Refresh the CodeLenses
@@ -176,11 +169,11 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   let disposable = vscode.commands.registerCommand(
-    "extension.playwrightTest",
+    "extension.runTest",
     async (match: MatchType) => {
       // Fetch the default environment each time the command is executed
       const environment = vscode.workspace
-        .getConfiguration("ortoniPlaywrightTestRunner")
+        .getConfiguration("OrtoniRunner")
         .get<string>("defaultEnvironment");
 
       if (!environment) {
@@ -326,7 +319,7 @@ export function activate(context: vscode.ExtensionContext) {
     return matches.flatMap((match) => [
       new vscode.CodeLens(match.range, {
         title: match.isTestSet,
-        command: "extension.playwrightTest",
+        command: "extension.runTest",
         arguments: [match],
       }),
       new vscode.CodeLens(match.range, {

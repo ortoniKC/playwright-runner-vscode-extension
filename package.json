@@ -1,9 +1,9 @@
 {
-  "name": "ortoni",
+  "name": "ortoni-pw-runner",
   "displayName": "Playwright Runner by Koushik",
   "description": "Run Playwright test in a click",
-  "version": "2.0.6",
-  "publisher": "ortoni",
+  "version": "2.0.7",
+  "publisher": "Koushik Chatterjee - LetCode with Koushik",
   "author": {
     "name": "Koushik Chatterjee"
   },
@@ -48,7 +48,7 @@
       "type": "object",
       "title": "Playwright Runner by Koushik",
       "properties": {
-        "ortoniPlaywrightTestRunner.environments": {
+        "OrtoniRunner.environments": {
           "type": "object",
           "description": "Environment variables for different environments",
           "properties": {
@@ -74,25 +74,25 @@
             }
           }
         },
-        "ortoniPlaywrightTestRunner.defaultEnvironment": {
+        "OrtoniRunner.defaultEnvironment": {
           "type": "string",
           "default": "No Environment",
           "description": "Environment"
         },
         "configurationDefaults": {
-          "ortoniPlaywrightTestRunner.environments": {
+          "OrtoniRunner.environments": {
             "Develop": "TEST_ENV=devNational",
             "Staging": "TEST_ENV=stagingNational",
             "Production": "TEST_ENV=prod",
             "No Environment": ""
           },
-          "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
+          "OrtoniRunner.defaultEnvironment": "No Environment"
         }
       }
     },
     "commands": [
       {
-        "command": "extension.playwrightTest",
+        "command": "extension.runTest",
         "title": "Run Playwright Test"
       },
       {
@@ -103,16 +103,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ortoniPlaywrightRunner",
+          "id": "OrtoniRunner",
           "title": "Playwright runner by Koushik",
           "icon": "images/logo.png"
         }
       ]
     },
     "views": {
-      "ortoniPlaywrightRunner": [
+      "OrtoniRunner": [
         {
-          "id": "ortoniPlaywrightTestRunner",
+          "id": "OrtoniRunner",
           "name": "Environment Selector"
         }
       ]
