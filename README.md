@@ -13,7 +13,7 @@ A friendly, no-fuss extension that lets you run Playwright tests and Cucumber sc
 
 ---
 
-[![Ortoni Runner](images/demo.png)](images/demo.png)
+![Ortoni Runner](https://raw.githubusercontent.com/ortoniKC/playwright-runner-vscode-extension/refs/heads/v2.0.7/images/demo.png)
 
 ## Quick Start — 1 minute to running tests
 
