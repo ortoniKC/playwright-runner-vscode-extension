@@ -1,9 +1,9 @@
 {
-  "name": "ortoni",
-  "displayName": "Playwright Runner by Koushik",
+  "name": "ortoni-runner",
+  "displayName": "Ortoni Runner - Playwright Test Runner",
   "description": "Run Playwright test in a click",
-  "version": "2.0.6",
-  "publisher": "ortoni",
+  "version": "2.0.7",
+  "publisher": "Koushik Chatterjee - LetCode with Koushik",
   "author": {
     "name": "Koushik Chatterjee"
   },
@@ -40,15 +40,16 @@
   "activationEvents": [
     "onLanguage:typescript",
     "onLanguage:javascript",
-    "onLanguage:feature"
+    "onLanguage:feature",
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Playwright Runner by Koushik",
+      "title": "Ortoni Runner - Playwright Test Runner",
       "properties": {
-        "ortoniPlaywrightTestRunner.environments": {
+        "OrtoniRunner.environments": {
           "type": "object",
           "description": "Environment variables for different environments",
           "properties": {
@@ -74,46 +75,81 @@
             }
           }
         },
-        "ortoniPlaywrightTestRunner.defaultEnvironment": {
+        "OrtoniRunner.defaultEnvironment": {
           "type": "string",
           "default": "No Environment",
           "description": "Environment"
         },
         "configurationDefaults": {
-          "ortoniPlaywrightTestRunner.environments": {
+          "OrtoniRunner.environments": {
             "Develop": "TEST_ENV=devNational",
             "Staging": "TEST_ENV=stagingNational",
             "Production": "TEST_ENV=prod",
             "No Environment": ""
           },
-          "ortoniPlaywrightTestRunner.defaultEnvironment": "No Environment"
+          "OrtoniRunner.defaultEnvironment": "No Environment"
         }
       }
     },
     "commands": [
       {
-        "command": "extension.playwrightTest",
+        "command": "extension.runTest",
         "title": "Run Playwright Test"
       },
       {
         "command": "extension.setDefaultEnvironment",
         "title": "Set Default Environment"
+      },
+      {
+        "command": "extension.addToTestList",
+        "title": "Add Test to List"
+      },
+      {
+        "command": "extension.runTestList",
+        "title": "Run Tests in List"
+      },
+      {
+        "command": "extension.clearTestList",
+        "title": "Clear Test List"
+      },
+      {
+        "command": "extension.openSettings",
+        "title": "Open Ortoni Runner Settings",
+        "icon": "$(gear)"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ortoniPlaywrightRunner",
-          "title": "Playwright runner by Koushik",
+          "id": "OrtoniRunner",
+          "title": "Ortoni Runner - Playwright Test Runner",
           "icon": "images/logo.png"
         }
       ]
     },
     "views": {
-      "ortoniPlaywrightRunner": [
+      "OrtoniRunner": [
         {
-          "id": "ortoniPlaywrightTestRunner",
+          "id": "OrtoniRunner",
           "name": "Environment Selector"
+        },
+        {
+          "id": "ortoniTestList",
+          "name": "Test List"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "extension.runTestList",
+          "when": "view == ortoniTestList",
+          "group": "navigation"
+        },
+        {
+          "command": "extension.clearTestList",
+          "when": "view == ortoniTestList",
+          "group": "navigation"
         }
       ]
     }
