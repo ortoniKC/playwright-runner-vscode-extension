@@ -1,168 +1,236 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { EnvironmentTreeViewProvider } from './EnvironmentTreeViewProvider';
-import { MatchType } from './MatchType';
+import * as vscode from "vscode";
+import * as path from "path";
+import { EnvironmentTreeViewProvider } from "./EnvironmentTreeViewProvider";
+import { MatchType } from "./MatchType";
 export function activate(context: vscode.ExtensionContext) {
-	// To open setting from the tree view
-	context.subscriptions.push(
-		vscode.commands.registerCommand('extension.openSettings', () => {
-			vscode.commands.executeCommand('workbench.action.openSettings', 'ortoniPlaywrightTestRunner.environments');
-		})
-	);
-	const config = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner");
-	let environments = config.get<{ [key: string]: string }>("environments")!;
-	let defaultEnvironment = config.get<string>("defaultEnvironment")!;
-	const environmentProvider = new EnvironmentTreeViewProvider(environments, defaultEnvironment);
+  // To open setting from the tree view
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.openSettings", () => {
+      vscode.commands.executeCommand(
+        "workbench.action.openSettings",
+        "ortoniPlaywrightTestRunner.environments"
+      );
+    })
+  );
+  const config = vscode.workspace.getConfiguration(
+    "ortoniPlaywrightTestRunner"
+  );
+  let environments = config.get<{ [key: string]: string }>("environments")!;
+  let defaultEnvironment = config.get<string>("defaultEnvironment")!;
+  const environmentProvider = new EnvironmentTreeViewProvider(
+    environments,
+    defaultEnvironment
+  );
 
-	vscode.window.registerTreeDataProvider('ortoniPlaywrightTestRunner', environmentProvider);
+  vscode.window.registerTreeDataProvider(
+    "ortoniPlaywrightTestRunner",
+    environmentProvider
+  );
 
-	// Listen for changes to the 'ortoniPlaywrightTestRunner.environments' setting
-	context.subscriptions.push(
-		vscode.workspace.onDidChangeConfiguration(event => {
-			if (event.affectsConfiguration('ortoniPlaywrightTestRunner.environments') || event.affectsConfiguration('ortoniPlaywrightTestRunner.defaultEnvironment')) {
-				// Refresh environments and update tree view
-				environments = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<{ [key: string]: string }>("environments")!;
-				defaultEnvironment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment")!;
-				environmentProvider.refresh(environments, defaultEnvironment);
-				// Refresh the CodeLenses
-				vscode.commands.executeCommand('vscode.executeCodeLensProvider', vscode.window.activeTextEditor?.document.uri);
-			}
-		})
-	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand('extension.setDefaultEnvironment', (environment: string) => {
-			config.update('defaultEnvironment', environment, vscode.ConfigurationTarget.Global)
-				.then(() => {
-					defaultEnvironment = environment;  // Update the default environment in the variable
-					environmentProvider.setDefaultEnvironment(environment);
-					vscode.window.showInformationMessage(`Default environment set to ${environment}`);
-				});
-		})
-	);
+  // Listen for changes to the 'ortoniPlaywrightTestRunner.environments' setting
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (
+        event.affectsConfiguration("ortoniPlaywrightTestRunner.environments") ||
+        event.affectsConfiguration(
+          "ortoniPlaywrightTestRunner.defaultEnvironment"
+        )
+      ) {
+        // Refresh environments and update tree view
+        environments = vscode.workspace
+          .getConfiguration("ortoniPlaywrightTestRunner")
+          .get<{ [key: string]: string }>("environments")!;
+        defaultEnvironment = vscode.workspace
+          .getConfiguration("ortoniPlaywrightTestRunner")
+          .get<string>("defaultEnvironment")!;
+        environmentProvider.refresh(environments, defaultEnvironment);
+        // Refresh the CodeLenses
+        vscode.commands.executeCommand(
+          "vscode.executeCodeLensProvider",
+          vscode.window.activeTextEditor?.document.uri
+        );
+      }
+    })
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.setDefaultEnvironment",
+      (environment: string) => {
+        config
+          .update(
+            "defaultEnvironment",
+            environment,
+            vscode.ConfigurationTarget.Global
+          )
+          .then(() => {
+            defaultEnvironment = environment; // Update the default environment in the variable
+            environmentProvider.setDefaultEnvironment(environment);
+            vscode.window.showInformationMessage(
+              `Default environment set to ${environment}`
+            );
+          });
+      }
+    )
+  );
 
-	let disposable = vscode.commands.registerCommand(
-		"extension.playwrightTest",
-		async (match: MatchType) => {
-			// Fetch the default environment each time the command is executed
-			const environment = vscode.workspace.getConfiguration("ortoniPlaywrightTestRunner").get<string>("defaultEnvironment");
+  let disposable = vscode.commands.registerCommand(
+    "extension.playwrightTest",
+    async (match: MatchType) => {
+      // Fetch the default environment each time the command is executed
+      const environment = vscode.workspace
+        .getConfiguration("ortoniPlaywrightTestRunner")
+        .get<string>("defaultEnvironment");
 
-			if (!environment) {
-				vscode.window.showWarningMessage("No environment selected, test not run.");
-				return;
-			}
-			const envCommand = environments[environment];
-			// Create or show terminal
-			let terminal: vscode.Terminal;
-			try {
-				terminal = vscode.window.terminals.length > 0 ? vscode.window.terminals[0] : vscode.window.createTerminal();
-				terminal.show();
-			} catch (error) {
-				vscode.window.showErrorMessage(`Failed to create or show terminal: ${error}`);
-				return;
-			}
-			const scenarioName = match.testName.replace(/^(Feature:|Scenario Outline:|Scenario:)\s*/, '').trim();
-			const testFile = match.testFile;
-			const testLine = match.range.start.line + 1; // Line numbers are 1-based in the command
-			let fullCommand: string;
-			if (testFile.endsWith('.feature')) {
-				// For Cucumber feature files
-				fullCommand = `${envCommand} --name="^${scenarioName}$"`.trim();
-			} else {
-				const regex = /\$\{([^}]*)\}/;
-				const additionalParamMatch = envCommand.match(regex);
-				const additionalParam = additionalParamMatch ? additionalParamMatch[1] : '';
-				const cleanedEnvCommand = additionalParamMatch ? envCommand.replace(regex, '').trim() : envCommand;
-				fullCommand = `${cleanedEnvCommand} npx playwright test ${testFile}:${testLine}`.trim();
-				if (additionalParam) {
-					fullCommand += ` ${additionalParam}`;
-				}
-			}
-			terminal.sendText(fullCommand);
-		}
-	);
+      if (!environment) {
+        vscode.window.showWarningMessage(
+          "No environment selected, test not run."
+        );
+        return;
+      }
+      const envCommand = environments[environment];
+      // Create or show terminal
+      let terminal: vscode.Terminal;
+      try {
+        terminal =
+          vscode.window.terminals.length > 0
+            ? vscode.window.terminals[0]
+            : vscode.window.createTerminal();
+        terminal.show();
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Failed to create or show terminal: ${error}`
+        );
+        return;
+      }
+      const scenarioName = match.testName
+        .replace(/^(Feature:|Scenario Outline:|Scenario:)\s*/, "")
+        .trim();
+      const testFile = match.testFile;
+      const testLine = match.range.start.line + 1; // Line numbers are 1-based in the command
+      let fullCommand: string;
+      if (testFile.endsWith(".feature")) {
+        // For Cucumber feature files
+        fullCommand = `${envCommand} --name="^${scenarioName}$"`.trim();
+      } else {
+        const regex = /\$\{([^}]*)\}/;
+        const additionalParamMatch = envCommand.match(regex);
+        const additionalParam = additionalParamMatch
+          ? additionalParamMatch[1]
+          : "";
+        const cleanedEnvCommand = additionalParamMatch
+          ? envCommand.replace(regex, "").trim()
+          : envCommand;
+        fullCommand =
+          `${cleanedEnvCommand} npx playwright test ${testFile}:${testLine}`.trim();
+        if (additionalParam) {
+          fullCommand += ` ${additionalParam}`;
+        }
+      }
+      terminal.sendText(fullCommand);
+    }
+  );
 
-	const languages = ["typescript", "javascript", "feature"];
-	const window = vscode.window;
-	const isScenario = /^\s*(Scenario|Scenario Outline):\s*(.*)/;
-	const isTest = /^\s*(it|test|test\.only)\s*\(\s*[\r\n]*\s*['"]/m;
-	const isSuite = /^\s*(describe|test\.describe|test\.describe.only)\s*\(\s*[\s\S]*?['"]/m;
-	const isTestNameHasSingleOrDoubleQuotes = /(['"])(.*?)\1/;
+  const languages = ["typescript", "javascript", "feature"];
+  const window = vscode.window;
+  const isScenario = /^\s*(Scenario|Scenario Outline):\s*(.*)/;
 
-	languages.forEach((language) => {
-		context.subscriptions.push(
-			vscode.languages.registerCodeLensProvider(language, {
-				provideCodeLenses: insertRunnerText,
-			})
-		);
-	});
+  // Enhanced regex to match test definitions with single, double, or backtick quotes (template literals)
+  const isTest = /(it|test|test\.only)\s*\(\s*([`'"])([\s\S]*?)\2/;
+  const isSuite =
+    /(describe|test\.describe|test\.describe.only)\s*\(\s*([`'"])([\s\S]*?)\2/;
+  const isTestNameHasQuotesOrTemplate = /([`'"])([\s\S]*?)\1/;
 
-	function insertRunnerText(document: vscode.TextDocument): vscode.CodeLens[] {
-		if (!window.activeTextEditor) {
-			return [];
-		}
+  languages.forEach((language) => {
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(language, {
+        provideCodeLenses: insertRunnerText,
+      })
+    );
+  });
 
-		let matches = [];
-		const doc = document;
-		const currentlyOpenTabfileName = path.basename(doc.fileName);
+  function insertRunnerText(document: vscode.TextDocument): vscode.CodeLens[] {
+    if (!window.activeTextEditor) {
+      return [];
+    }
 
-		let currentSuiteName: string | null = null;
+    let matches = [];
+    const doc = document;
+    const currentlyOpenTabfileName = path.basename(doc.fileName);
 
-		for (let index = 0; index < doc.lineCount; index++) {
-			const line = doc.lineAt(index).text;
-			if (isSuite.test(line)) {
-				const suiteNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
-				if (suiteNameMatch) {
-					currentSuiteName = suiteNameMatch[2];
+    let currentSuiteName: string | null = null;
 
+    for (let index = 0; index < doc.lineCount; index++) {
+      const line = doc.lineAt(index).text;
 
-					let match: MatchType = {
-						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
-						testName: suiteNameMatch[2],
-						testFile: currentlyOpenTabfileName,
-						isTestSet: "Execute Playwright Suite",
-					};
-					matches.push(match);
-				}
-			}
-			if (isTest.test(line)) {
-				const testNameMatch = line.match(isTestNameHasSingleOrDoubleQuotes);
-				if (testNameMatch) {
-					const fullTestName = currentSuiteName ? `${currentSuiteName} ${testNameMatch[2]}` : testNameMatch[2];
-					let match: MatchType = {
-						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
-						testName: fullTestName,
-						testFile: currentlyOpenTabfileName,
-						isTestSet: "$(testing-run-icon) Execute Playwright Test",
-					};
-					matches.push(match);
-				}
-			}
-			if (isScenario.test(line)) {
-				const scenarioNameMatch = line.match(isScenario);
-				if (scenarioNameMatch) {
-					let match: MatchType = {
-						range: new vscode.Range(new vscode.Position(index, 0), new vscode.Position(index, line.length)),
-						testName: `${scenarioNameMatch[1]}: ${scenarioNameMatch[2]}`,
-						testFile: currentlyOpenTabfileName,
-						isTestSet: "Execute Cucumber Scenario",
-						lineNumber: index + 1,
-					};
-					matches.push(match);
-				}
-			}
-		}
+      // Suite detection (describe blocks)
+      const suiteMatch = line.match(isSuite);
+      if (suiteMatch) {
+        const suiteNameMatch = line.match(isTestNameHasQuotesOrTemplate);
+        if (suiteNameMatch) {
+          currentSuiteName = suiteNameMatch[2];
+          let match: MatchType = {
+            range: new vscode.Range(
+              new vscode.Position(index, 0),
+              new vscode.Position(index, line.length)
+            ),
+            testName: suiteNameMatch[2],
+            testFile: currentlyOpenTabfileName,
+            isTestSet: "Execute Playwright Suite",
+          };
+          matches.push(match);
+        }
+      }
 
-		return matches.map(
-			(match) =>
-				new vscode.CodeLens(match.range, {
-					title: match.isTestSet,
-					command: "extension.playwrightTest",
-					arguments: [match],
-				})
-		);
-	}
+      // Test detection (it/test/test.only)
+      const testMatch = line.match(isTest);
+      if (testMatch) {
+        // testMatch[3] contains the test name (supports template literals)
+        const testName = testMatch[3].replace(/\s+/g, " ").trim();
+        const fullTestName = currentSuiteName
+          ? `${currentSuiteName} ${testName}`
+          : testName;
+        let match: MatchType = {
+          range: new vscode.Range(
+            new vscode.Position(index, 0),
+            new vscode.Position(index, line.length)
+          ),
+          testName: fullTestName,
+          testFile: currentlyOpenTabfileName,
+          isTestSet: "$(testing-run-icon) Execute Playwright Test",
+        };
+        matches.push(match);
+      }
 
-	context.subscriptions.push(disposable);
+      // Cucumber scenario detection
+      if (isScenario.test(line)) {
+        const scenarioNameMatch = line.match(isScenario);
+        if (scenarioNameMatch) {
+          let match: MatchType = {
+            range: new vscode.Range(
+              new vscode.Position(index, 0),
+              new vscode.Position(index, line.length)
+            ),
+            testName: `${scenarioNameMatch[1]}: ${scenarioNameMatch[2]}`,
+            testFile: currentlyOpenTabfileName,
+            isTestSet: "Execute Cucumber Scenario",
+            lineNumber: index + 1,
+          };
+          matches.push(match);
+        }
+      }
+    }
+
+    return matches.map(
+      (match) =>
+        new vscode.CodeLens(match.range, {
+          title: match.isTestSet,
+          command: "extension.playwrightTest",
+          arguments: [match],
+        })
+    );
+  }
+
+  context.subscriptions.push(disposable);
 }
 
-export function deactivate() { }
+export function deactivate() {}
