@@ -233,24 +233,19 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  // register CodeLens providers (existing)
-  const languages = ["typescript", "javascript", "feature"];
-  const window = vscode.window;
-  const isScenario = /^\s*(Scenario|Scenario Outline):\s*(.*)/;
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      [{ language: "typescript" }, { language: "javascript" }],
+      { provideCodeLenses: insertRunnerText }
+    )
+  );
 
-  // Enhanced regex to match test definitions with single, double, or backtick quotes (template literals)
-  const isTest = /(it|test|test\.only)\s*\(\s*([`'"])([\s\S]*?)\2/;
-  const isSuite =
-    /(describe|test\.describe|test\.describe.only)\s*\(\s*([`'"])([\s\S]*?)\2/;
-  const isTestNameHasQuotesOrTemplate = /([`'"])([\s\S]*?)\1/;
-
-  languages.forEach((language) => {
-    context.subscriptions.push(
-      vscode.languages.registerCodeLensProvider(language, {
-        provideCodeLenses: insertRunnerText,
-      })
-    );
-  });
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: "file", pattern: "**/*.feature" },
+      { provideCodeLenses: insertRunnerText }
+    )
+  );
 
   // register test-list related commands so menus work
   context.subscriptions.push(
