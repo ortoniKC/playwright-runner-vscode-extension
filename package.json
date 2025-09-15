@@ -40,7 +40,8 @@
   "activationEvents": [
     "onLanguage:typescript",
     "onLanguage:javascript",
-    "onLanguage:feature"
+    "onLanguage:feature",
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -98,6 +99,22 @@
       {
         "command": "extension.setDefaultEnvironment",
         "title": "Set Default Environment"
+      },
+      {
+        "command": "extension.addToTestList",
+        "title": "Add Test to List"
+      },
+      {
+        "command": "extension.runTestList",
+        "title": "Run Tests in List"
+      },
+      {
+        "command": "extension.clearTestList",
+        "title": "Clear Test List"
+      },
+      {
+        "command": "extension.openSettings",
+        "title": "Open Ortoni Runner Settings"
       }
     ],
     "viewsContainers": {
@@ -114,6 +131,24 @@
         {
           "id": "OrtoniRunner",
           "name": "Environment Selector"
+        },
+        {
+          "id": "ortoniTestList",
+          "name": "Test List"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "extension.runTestList",
+          "when": "view == ortoniTestList",
+          "group": "navigation"
+        },
+        {
+          "command": "extension.clearTestList",
+          "when": "view == ortoniTestList",
+          "group": "navigation"
         }
       ]
     }

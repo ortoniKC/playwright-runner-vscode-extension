@@ -1,8 +1,15 @@
-// --- Test List Storage & Helpers ---
+import * as vscode from "vscode";
+import * as path from "path";
+import { EnvironmentTreeViewProvider } from "./EnvironmentTreeViewProvider";
+import { MatchType } from "./MatchType";
+import { TestListTreeViewProvider } from "./TestListTreeViewProvider";
+
 let testList: MatchType[] = [];
 
-function addToTestList(test: MatchType) {
-  // Avoid duplicates by test name and file
+function addToTestList(
+  test: MatchType,
+  testListProvider?: TestListTreeViewProvider
+) {
   if (
     !testList.some(
       (t) => t.testName === test.testName && t.testFile === test.testFile
@@ -10,14 +17,24 @@ function addToTestList(test: MatchType) {
   ) {
     testList.push(test);
     vscode.window.showInformationMessage(`Added to list: ${test.testName}`);
+    try {
+      testListProvider?.refresh(testList);
+    } catch (err) {
+      console.error("Failed to refresh testList view:", err);
+    }
   } else {
     vscode.window.showWarningMessage(`Test already in list: ${test.testName}`);
   }
 }
 
-function clearTestList() {
+function clearTestList(testListProvider?: TestListTreeViewProvider) {
   testList = [];
   vscode.window.showInformationMessage("Test list cleared.");
+  try {
+    testListProvider?.refresh(testList);
+  } catch (err) {
+    console.error("Failed to refresh testList view:", err);
+  }
 }
 
 async function runTestList(
@@ -78,33 +95,11 @@ async function runTestList(
     let fullCommand = `${envCommand} --name="^${scenarioName}$"`.trim();
     terminal.sendText(fullCommand);
   }
-
-  vscode.window.showInformationMessage("Test list executed.");
+  //   vscode.window.showInformationMessage("Test list executed.");
 }
-import * as vscode from "vscode";
-import * as path from "path";
-import { EnvironmentTreeViewProvider } from "./EnvironmentTreeViewProvider";
-import { MatchType } from "./MatchType";
+
+// ------------------ extension activation ------------------
 export function activate(context: vscode.ExtensionContext) {
-  // Register new commands for test list management
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "extension.addToTestList",
-      (match: MatchType) => {
-        addToTestList(match);
-      }
-    )
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand("extension.runTestList", () => {
-      runTestList(environments, defaultEnvironment);
-    })
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand("extension.clearTestList", () => {
-      clearTestList();
-    })
-  );
   // To open setting from the tree view
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.openSettings", () => {
@@ -114,15 +109,24 @@ export function activate(context: vscode.ExtensionContext) {
       );
     })
   );
+
   const config = vscode.workspace.getConfiguration("OrtoniRunner");
   let environments = config.get<{ [key: string]: string }>("environments")!;
   let defaultEnvironment = config.get<string>("defaultEnvironment")!;
+
+  // Environment provider (existing)
   const environmentProvider = new EnvironmentTreeViewProvider(
     environments,
     defaultEnvironment
   );
 
   vscode.window.registerTreeDataProvider("OrtoniRunner", environmentProvider);
+
+  // Test List tree view provider (new)
+  const testListProvider = new TestListTreeViewProvider(testList);
+  vscode.window.registerTreeDataProvider("ortoniTestList", testListProvider);
+  // ensure initial state is shown
+  testListProvider.refresh(testList);
 
   // Listen for changes to the 'OrtoniRunner.environments' setting
   context.subscriptions.push(
@@ -147,6 +151,8 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  // setDefaultEnvironment command (existing)
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "extension.setDefaultEnvironment",
@@ -168,6 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // register runTest
   let disposable = vscode.commands.registerCommand(
     "extension.runTest",
     async (match: MatchType) => {
@@ -224,7 +231,9 @@ export function activate(context: vscode.ExtensionContext) {
       terminal.sendText(fullCommand);
     }
   );
+  context.subscriptions.push(disposable);
 
+  // register CodeLens providers (existing)
   const languages = ["typescript", "javascript", "feature"];
   const window = vscode.window;
   const isScenario = /^\s*(Scenario|Scenario Outline):\s*(.*)/;
@@ -243,104 +252,128 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
-  function insertRunnerText(document: vscode.TextDocument): vscode.CodeLens[] {
-    if (!window.activeTextEditor) {
-      return [];
-    }
-
-    let matches = [];
-    const doc = document;
-    const currentlyOpenTabfileName = path.basename(doc.fileName);
-
-    let currentSuiteName: string | null = null;
-
-    for (let index = 0; index < doc.lineCount; index++) {
-      const line = doc.lineAt(index).text;
-
-      // Suite detection (describe blocks)
-      const suiteMatch = line.match(isSuite);
-      if (suiteMatch) {
-        const suiteNameMatch = line.match(isTestNameHasQuotesOrTemplate);
-        if (suiteNameMatch) {
-          currentSuiteName = suiteNameMatch[2];
-          let match: MatchType = {
-            range: new vscode.Range(
-              new vscode.Position(index, 0),
-              new vscode.Position(index, line.length)
-            ),
-            testName: suiteNameMatch[2],
-            testFile: currentlyOpenTabfileName,
-            isTestSet: "Execute Playwright Suite",
-          };
-          matches.push(match);
-        }
+  // register test-list related commands so menus work
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.addToTestList",
+      (match: MatchType) => {
+        addToTestList(match, testListProvider);
       }
+    )
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.runTestList", () => {
+      runTestList(environments, defaultEnvironment);
+    })
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.clearTestList", () => {
+      clearTestList(testListProvider);
+    })
+  );
+}
 
-      // Test detection (it/test/test.only)
-      const testMatch = line.match(isTest);
-      if (testMatch) {
-        // testMatch[3] contains the test name (supports template literals)
-        const testName = testMatch[3].replace(/\s+/g, " ").trim();
-        const fullTestName = currentSuiteName
-          ? `${currentSuiteName} ${testName}`
-          : testName;
+function insertRunnerText(document: vscode.TextDocument): vscode.CodeLens[] {
+  if (!vscode.window.activeTextEditor) {
+    return [];
+  }
+
+  let matches: MatchType[] = [];
+  const doc = document;
+  const currentlyOpenTabfileName = path.basename(doc.fileName);
+
+  let currentSuiteName: string | null = null;
+
+  for (let index = 0; index < doc.lineCount; index++) {
+    const line = doc.lineAt(index).text;
+
+    // Suite detection (describe blocks)
+    const suiteMatch = line.match(
+      /(describe|test\.describe|test\.describe.only)\s*\(\s*([`'"])([\s\S]*?)\2/
+    );
+    if (suiteMatch) {
+      const suiteNameMatch = line.match(/([`'"])([\s\S]*?)\1/);
+      if (suiteNameMatch) {
+        currentSuiteName = suiteNameMatch[2];
         let match: MatchType = {
           range: new vscode.Range(
             new vscode.Position(index, 0),
             new vscode.Position(index, line.length)
           ),
-          testName: fullTestName,
+          testName: suiteNameMatch[2],
           testFile: currentlyOpenTabfileName,
-          isTestSet: "$(testing-run-icon) Execute Playwright Test",
+          isTestSet: "Execute Playwright Suite",
         };
         matches.push(match);
       }
-
-      // Cucumber scenario detection
-      if (isScenario.test(line)) {
-        const scenarioNameMatch = line.match(isScenario);
-        if (scenarioNameMatch) {
-          let match: MatchType = {
-            range: new vscode.Range(
-              new vscode.Position(index, 0),
-              new vscode.Position(index, line.length)
-            ),
-            testName: `${scenarioNameMatch[1]}: ${scenarioNameMatch[2]}`,
-            testFile: currentlyOpenTabfileName,
-            isTestSet: "Execute Cucumber Scenario",
-            lineNumber: index + 1,
-          };
-          matches.push(match);
-        }
-      }
     }
 
-    // For each match, provide four CodeLenses: Run, Add to List, Run List, Clear List
-    return matches.flatMap((match) => [
-      new vscode.CodeLens(match.range, {
-        title: match.isTestSet,
-        command: "extension.runTest",
-        arguments: [match],
-      }),
-      new vscode.CodeLens(match.range, {
-        title: "Add to List",
-        command: "extension.addToTestList",
-        arguments: [match],
-      }),
-      new vscode.CodeLens(match.range, {
-        title: "Run List",
-        command: "extension.runTestList",
-        arguments: [],
-      }),
-      new vscode.CodeLens(match.range, {
-        title: "Clear List",
-        command: "extension.clearTestList",
-        arguments: [],
-      }),
-    ]);
+    // Test detection (it/test/test.only)
+    const testMatch = line.match(
+      /(it|test|test\.only)\s*\(\s*([`'"])([\s\S]*?)\2/
+    );
+    if (testMatch) {
+      // testMatch[3] contains the test name (supports template literals)
+      const testName = testMatch[3].replace(/\s+/g, " ").trim();
+      const fullTestName = currentSuiteName
+        ? `${currentSuiteName} ${testName}`
+        : testName;
+      let match: MatchType = {
+        range: new vscode.Range(
+          new vscode.Position(index, 0),
+          new vscode.Position(index, line.length)
+        ),
+        testName: fullTestName,
+        testFile: currentlyOpenTabfileName,
+        isTestSet: "$(testing-run-icon) Execute Playwright Test",
+      };
+      matches.push(match);
+    }
+
+    // Cucumber scenario detection
+    if (/^\s*(Scenario|Scenario Outline):\s*(.*)/.test(line)) {
+      const scenarioNameMatch = line.match(
+        /^\s*(Scenario|Scenario Outline):\s*(.*)/
+      );
+      if (scenarioNameMatch) {
+        let match: MatchType = {
+          range: new vscode.Range(
+            new vscode.Position(index, 0),
+            new vscode.Position(index, line.length)
+          ),
+          testName: `${scenarioNameMatch[1]}: ${scenarioNameMatch[2]}`,
+          testFile: currentlyOpenTabfileName,
+          isTestSet: "Execute Cucumber Scenario",
+          lineNumber: index + 1,
+        };
+        matches.push(match);
+      }
+    }
   }
 
-  context.subscriptions.push(disposable);
+  // For each match, provide four CodeLenses: Run, Add to List, Run List, Clear List
+  return matches.flatMap((match) => [
+    new vscode.CodeLens(match.range, {
+      title: match.isTestSet,
+      command: "extension.runTest",
+      arguments: [match],
+    }),
+    new vscode.CodeLens(match.range, {
+      title: "Add to List",
+      command: "extension.addToTestList",
+      arguments: [match],
+    }),
+    new vscode.CodeLens(match.range, {
+      title: "Run List",
+      command: "extension.runTestList",
+      arguments: [],
+    }),
+    new vscode.CodeLens(match.range, {
+      title: "Clear List",
+      command: "extension.clearTestList",
+      arguments: [],
+    }),
+  ]);
 }
 
 export function deactivate() {}
