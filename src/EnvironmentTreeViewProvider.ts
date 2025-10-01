@@ -7,7 +7,12 @@ export class EnvironmentTreeItem extends vscode.TreeItem {
     public readonly command?: vscode.Command
   ) {
     super(label, vscode.TreeItemCollapsibleState.None);
-    this.description = label === defaultEnvironment ? "(default)" : "";
+    if (label === defaultEnvironment) {
+      this.iconPath = new vscode.ThemeIcon(
+        "check",
+        new vscode.ThemeColor("terminal.ansiGreen")
+      );
+    }
     this.contextValue =
       label === defaultEnvironment ? "defaultEnvironment" : "environment";
   }
@@ -36,13 +41,7 @@ export class EnvironmentTreeViewProvider
     const items: EnvironmentTreeItem[] = [];
 
     // Add "Open Settings" command
-    //
-    items.push(
-      new EnvironmentTreeItem("Open Setting", this.defaultEnvironment, {
-        command: "extension.openSettings",
-        title: "Open Settings",
-      })
-    );
+    this.addOpenSetting(items, "Open Settings");
 
     // If environments are set, display them
     if (Object.keys(this.environments).length > 0) {
@@ -58,19 +57,30 @@ export class EnvironmentTreeViewProvider
       );
     } else {
       // If no environments are set, display a placeholder item
-      items.push(
-        new EnvironmentTreeItem(
-          "No environments set. Click to add environments",
-          this.defaultEnvironment,
-          {
-            command: "extension.openSettings",
-            title: "Open Settings",
-          }
-        )
+      this.addOpenSetting(
+        items,
+        "No environments set. Click to add environments"
       );
     }
 
     return Promise.resolve(items);
+  }
+
+  private addOpenSetting(items: EnvironmentTreeItem[], text: string) {
+    const gearIcon = new vscode.ThemeIcon(
+      "gear",
+      new vscode.ThemeColor("terminal.ansiYellow")
+    );
+    const settingsItem = new EnvironmentTreeItem(
+      text,
+      this.defaultEnvironment,
+      {
+        command: "extension.openSettings",
+        title: "Open Settings",
+      }
+    );
+    settingsItem.iconPath = gearIcon;
+    items.push(settingsItem);
   }
 
   refresh(

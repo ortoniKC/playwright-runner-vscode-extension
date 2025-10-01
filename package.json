@@ -35,7 +35,8 @@
     "playwright helper",
     "playwright letcode",
     "koushik",
-    "letcode with koushik"
+    "letcode with koushik",
+    "ortoni"
   ],
   "activationEvents": [
     "onLanguage:typescript",
@@ -94,7 +95,8 @@
     "commands": [
       {
         "command": "extension.runTest",
-        "title": "Run Playwright Test"
+        "title": "Run Playwright Test",
+        "icon": "$(play)"
       },
       {
         "command": "extension.setDefaultEnvironment",
@@ -102,20 +104,26 @@
       },
       {
         "command": "extension.addToTestList",
-        "title": "Add Test to List"
+        "title": "Add Test to List",
+        "icon": "$(plus)",
+        "shortTitle": "Add Test to List"
       },
       {
         "command": "extension.runTestList",
-        "title": "Run Tests in List"
+        "title": "Run Tests from List",
+        "icon": "$(play)",
+        "shortTitle": "Run Test from List"
       },
       {
         "command": "extension.clearTestList",
-        "title": "Clear Test List"
+        "icon": "$(trash)",
+        "title": "Clear Test List",
+        "shortTitle": "Clear Test List"
       },
       {
         "command": "extension.openSettings",
         "title": "Open Ortoni Runner Settings",
-        "icon": "$(gear)"
+        "shortTitle": "Open Ortoni Runner Settings"
       }
     ],
     "viewsContainers": {
@@ -130,10 +138,12 @@
     "views": {
       "OrtoniRunner": [
         {
+          "icon": "$(gear)",
           "id": "OrtoniRunner",
           "name": "Environment Selector"
         },
         {
+          "icon": "$(beaker)",
           "id": "ortoniTestList",
           "name": "Test List"
         }

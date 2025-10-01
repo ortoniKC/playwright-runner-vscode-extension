@@ -91,3 +91,8 @@ All notable changes to this project will be documented in this file.
 - Added user-facing **Test List** with Run & Clear controls.
 - Improved feature file support and immediate UI updates.
 - Cleaner behavior: list-related UI only shows when meaningful.
+
+## Version 2.0.8
+
+- Added color icons
+- Fixed test list commands hidden by replacing text with icons
