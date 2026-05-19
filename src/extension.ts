@@ -287,9 +287,28 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
+function matchesGlob(filePath: string, glob: string): boolean {
+  const normalized = filePath.replace(/\\/g, "/");
+  const pattern = glob
+    .replace(/\./g, "\\.")
+    .replace(/\*\*\//g, "(.+/)?")
+    .replace(/\*/g, "[^/]*");
+  return new RegExp(`^${pattern}$`).test(normalized);
+}
+
 function insertRunnerText(document: vscode.TextDocument): vscode.CodeLens[] {
   if (!vscode.window.activeTextEditor) {
     return [];
+  }
+
+  const testFilePattern = vscode.workspace
+    .getConfiguration("OrtoniRunner")
+    .get<string>("testFilePattern", "");
+  if (testFilePattern) {
+    const relativePath = vscode.workspace.asRelativePath(document.uri);
+    if (!matchesGlob(relativePath, testFilePattern)) {
+      return [];
+    }
   }
 
   let matches: MatchType[] = [];

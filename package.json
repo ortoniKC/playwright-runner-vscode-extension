@@ -80,6 +80,11 @@
           "default": "No Environment",
           "description": "Environment"
         },
+        "OrtoniRunner.testFilePattern": {
+          "type": "string",
+          "default": "",
+          "description": "Glob pattern to restrict Playwright code lenses to matching files only. Leave empty to show lenses on all TypeScript/JavaScript files (default behavior). Example: '**/*.spec.ts' or '**/*.pw.spec.ts'"
+        },
         "configurationDefaults": {
           "OrtoniRunner.environments": {
             "Develop": "TEST_ENV=devNational",
