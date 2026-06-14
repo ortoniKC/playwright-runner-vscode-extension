@@ -4,8 +4,11 @@ A friendly, no-fuss extension that lets you run Playwright tests and Cucumber sc
 
 ---
 
-## What’s new (v2.0.7)
+## What’s new (v2.0.9)
 
+- **Location-only mode**: send only `file:line` from CodeLens and still use sidebar-selected environment data.
+- **Custom command wrapping**: configure `prefixCommand` and `suffixCommand` to prepend or append any custom command around the generated test location.
+- **Environment interpolation**: use `${env}` in prefix/suffix values to inject the selected environment command directly into custom wrappers.
 - **Test List sidebar**: collect tests or scenarios from files, view them in the Activity Bar, and run or clear the entire list with a single click.
 - **Immediate UI updates**: when you add/remove tests, the code lenses update instantly in the active file — no reload needed.
 - **Feature file support**: improved detection and CodeLens support for `.feature` (Cucumber) files.
@@ -56,7 +59,6 @@ A friendly, no-fuss extension that lets you run Playwright tests and Cucumber sc
 3. The Test List shows items you added. Click any item to run it individually.
 4. Use **Run** (top-right of the Test List view) to run every item in the list.
 5. Use **Clear** (top-right) to empty the list.
-
    - The Run / Clear buttons appear only when the list contains at least one test.
    - When you add or clear items, the editor UI updates immediately — no reload needed.
 
@@ -77,6 +79,47 @@ Production: TEST_ENV=prod ${--config=play.config.ts --project=chromium}
 
 - The `${...}` part is optional: put any extra Playwright CLI flags you want appended (for example `--headed` or `--config=...`).
 - After configuring, set your default environment from the Environment Selector in the Activity Bar.
+
+## Advanced command customization
+
+The extension now supports custom command wrappers and location-only execution:
+
+- `OrtoniRunner.locationOnly`: when enabled, CodeLens sends just the `file:line` location. If an environment is selected in the sidebar, the extension still combines the selected environment command with the file path.
+- `OrtoniRunner.prefixCommand`: text to prepend before the generated command or location.
+- `OrtoniRunner.suffixCommand`: text to append after the generated command or location.
+- Use `${env}` inside `prefixCommand` or `suffixCommand` to inject the selected sidebar environment command directly.
+
+Example env settings with appended `${...}` flags:
+
+```json
+"OrtoniRunner": {
+  "environments": {
+    "chrome": "${--project=chromium}",
+    "chrome-head": "${--project=chromium --headed}",
+    "Develop": "TEST_ENV=devNational ${--project=chromium --headed}",
+    "Staging": "TEST_ENV=stagingNational",
+    "No Environment": ""
+  }
+}
+```
+
+Example command wrapper settings:
+
+```json
+"OrtoniRunner": {
+  "locationOnly": true,
+  "prefixCommand": "${env} yarn playwright.api.ts qa",
+  "suffixCommand": "--verbose"
+}
+```
+
+With `locationOnly = true` and `Develop` selected, a CodeLens action for `src/example.spec.ts:42` will run as:
+
+```
+TEST_ENV=devNational yarn playwright.api.ts qa src/example.spec.ts:42 --project=chromium --headed --verbose
+```
+
+This gives you the flexibility to keep the editor sending just the file location while still using sidebar environment selection and full custom command composition.
 
 ---
 

@@ -65,14 +65,18 @@ export class TestListTreeViewProvider
       return Promise.resolve([placeholder]);
     }
 
-    const data = this.items.map(
-      (m) =>
-        new TestListItem(m, {
-          command: "extension.runTest",
-          title: "Run test",
-          arguments: [m],
-        })
-    );
+    const data = this.items.map((m) => {
+      const item = new TestListItem(m, {
+        command: "extension.runTest",
+        title: "Run test",
+        arguments: [m],
+      });
+      item.iconPath = new vscode.ThemeIcon(
+        "beaker",
+        new vscode.ThemeColor("charts.blue")
+      );
+      return item;
+    });
     return Promise.resolve(data);
   }
 
