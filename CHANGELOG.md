@@ -91,3 +91,15 @@ All notable changes to this project will be documented in this file.
 - Added user-facing **Test List** with Run & Clear controls.
 - Improved feature file support and immediate UI updates.
 - Cleaner behavior: list-related UI only shows when meaningful.
+
+## Version 2.0.8
+
+- Added color icons
+- Fixed test list commands hidden by replacing text with icons
+
+## Version 2.0.9
+
+- Added `OrtoniRunner.locationOnly` setting to send only file path with line number from CodeLens.
+- Added `OrtoniRunner.prefixCommand` and `OrtoniRunner.suffixCommand` settings for custom wrapper commands.
+- Updated location-only mode to use the sidebar-selected environment and combine env data with `file:line` automatically.
+- Improved command composition with `${env}` placeholder support in custom prefix/suffix values.
